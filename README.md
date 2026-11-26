@@ -1,10 +1,5 @@
 # RetroOS Shell (CSE210 Operating Systems Lab Edition)
 
-[![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20WSL%20%7C%20Git%20Bash-informational?style=flat-square&logo=linux)](https://kernel.org)
-[![Shell](https://img.shields.io/badge/Shell-Bash%204.0%2B-blue?style=flat-square&logo=gnubash)](https://www.gnu.org/software/bash/)
-[![Course](https://img.shields.io/badge/Course-CSE210%20Operating%20Systems-purple?style=flat-square)](#academic-overview)
-[![License](https://img.shields.io/badge/License-Academic%20Use-green?style=flat-square)](#)
-
 > RetroOS is an interactive Unix shell and operating systems simulation laboratory developed entirely in GNU Bash (4.0+). It bridges standard POSIX shell utilities (REPL, command pipelines, I/O redirection, job control) with comprehensive demonstrations of foundational Operating System concepts—including CPU Scheduling, Process Control Blocks (PCB), Concurrency and Deadlocks, Dijkstra's Banker's Algorithm, and Virtual Memory Management.
 
 ---
@@ -72,13 +67,13 @@ The objective of this project is to provide a rigorous, interactive bridge betwe
 ## Core Operating System Modules
 
 ### 1. CPU Scheduling and Gantt Chart (`sched.sh`)
-Implements non-preemptive and preemptive scheduling algorithms with interactive Gantt charts, computing Turnaround Time ($TAT = CT - AT$) and Waiting Time ($WT = TAT - BT$).
+Implements non-preemptive and preemptive scheduling algorithms with interactive Gantt charts, computing Turnaround Time (TAT = Completion Time - Arrival Time) and Waiting Time (WT = Turnaround Time - Burst Time).
 
 - Supported Algorithms:
   - FCFS (First-Come, First-Served): Non-preemptive execution scheduled strictly by arrival timestamp.
   - SJF (Shortest Job First): Non-preemptive algorithm that minimizes average waiting time.
   - Priority Scheduling: Non-preemptive execution prioritized by integer weight (smaller integer = higher priority).
-  - Round Robin (RR): Time-sliced preemptive execution with customizable quantum ($q$).
+  - Round Robin (RR): Time-sliced preemptive execution with customizable quantum (q).
 - Comparative Benchmark (`sched compare`):
   Executes all four scheduling policies side-by-side against an identical workload to empirically verify theoretical performance metrics.
 
@@ -99,9 +94,13 @@ sched compare 0:5:2 1:3:1 2:8:3    # Side-by-side comparative analysis
   - Voluntary and Non-voluntary Context Switches.
 - Discrete State Simulator (`pcb sim`):
   Traces clock ticks under Round Robin to display exact process lifecycle transitions:
-  $$\text{New} \xrightarrow{\text{admit}} \text{Ready} \xrightarrow{\text{dispatch}} \text{Running} \xrightarrow{\text{preempt}} \text{Ready} \xrightarrow{\text{finish}} \text{Terminated}$$
+  ```
+  New --(admit)--> Ready --(dispatch)--> Running --(finish)--> Terminated
+                     ^                      |
+                     +---(time slice)-------+
+  ```
 - Process Subsystem Primitives (`forkdemo`):
-  Walkthrough of POSIX process calls: `fork()` memory duplication, `exec()` image overlay, `wait()` status collection, anonymous pipes, zombie process observation (state `Z`), and signal handling (`SIGTERM`, `SIGINT`).
+  Walkthrough of POSIX process calls: `fork()` memory duplication, `exec()` image overlay, `wait()` status collection, anonymous pipes, zombie process observation (state Z), and signal handling (`SIGTERM`, `SIGINT`).
 
 ---
 
@@ -116,15 +115,15 @@ Examines the Critical Section Problem when concurrent worker processes manipulat
 
 ### 4. Deadlock Detection, Prevention and Avoidance (`deadlock.sh` & `bankers.sh`)
 - Deadlock Simulation (`deadlock`):
-  - Spawns concurrent threads requesting resources in inverted order ($T_1 \rightarrow A, B$ vs $T_2 \rightarrow B, A$).
-  - Visualizes the circular wait condition on a Wait-For Graph (WFG): $T_1 \to B \to T_2 \to A \to T_1$.
+  - Spawns concurrent threads requesting resources in inverted order (T1 takes A then B vs T2 takes B then A).
+  - Visualizes the circular wait condition on a Wait-For Graph (WFG): T1 -> Resource B -> T2 -> Resource A -> T1.
   - Demonstrates deadlock prevention strategies:
     1. Lock Ordering (prevents Circular Wait).
     2. Try-Lock Back-off (prevents Hold and Wait).
   - Explains the four Coffman Conditions (Mutual Exclusion, Hold and Wait, No Preemption, Circular Wait).
 - Dijkstra's Banker's Algorithm (`bankers`):
-  - Maintains state vectors and matrices: $\text{Available}$, $\text{Allocation}$, $\text{Max}$, and derives $\text{Need} = \text{Max} - \text{Allocation}$.
-  - Runs the safety algorithm step-by-step to identify a safe sequence (e.g., $\langle P_1, P_3, P_4, P_0, P_2 \rangle$).
+  - Maintains state vectors and matrices: Available, Allocation, Max, and derives Need = Max - Allocation.
+  - Runs the safety algorithm step-by-step to identify a safe sequence (e.g., <P1, P3, P4, P0, P2>).
   - Evaluates live resource requests, granting resources only if the resulting state remains safe, thereby preventing deadlock proactively.
 
 ---
@@ -197,8 +196,8 @@ RetroOS_Shell/
 Clone the repository and launch directly in your terminal:
 ```bash
 # Clone the repository
-git clone <repo-url>
-cd RetroOS_Shell
+git clone https://github.com/SaKin32/RetroOS.git
+cd RetroOS
 
 # Launch the interactive shell
 bash retroos.sh
