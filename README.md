@@ -2,10 +2,10 @@
 
 # RetroOS Shell (CSE210 Operating Systems Lab Edition)
 
-![Shell](https://img.shields.io/badge/Shell-GNU%20Bash%204.0%2B-4EAA25?style=for-the-badge)
+![Language](https://img.shields.io/badge/Language-GNU_Bash-4EAA25?style=for-the-badge)
 ![Kernel](https://img.shields.io/badge/Kernel-Linux_VFS-FCC624?style=for-the-badge&logo=linux&logoColor=black)
-![Platform](https://img.shields.io/badge/Primary%20Platform-Windows%2011%20(WSL2)-0078D6?style=for-the-badge&logo=windows)
-![Course](https://img.shields.io/badge/Course-CSE210%20OS-c084fc?style=for-the-badge)
+![Platform](https://img.shields.io/badge/Platform-Windows_11_WSL2-0078D6?style=for-the-badge&logo=windows)
+![Course](https://img.shields.io/badge/Course-CSE210_Operating_Systems-8B5CF6?style=for-the-badge)
 ![License](https://img.shields.io/badge/Academic%20Project-Personal%20Use-ec4899?style=for-the-badge)
 
 **A Custom Unix Shell & Interactive Operating Systems Laboratory**
