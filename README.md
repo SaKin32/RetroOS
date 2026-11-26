@@ -2,11 +2,11 @@
 
 # RetroOS Shell (CSE210 Operating Systems Lab Edition)
 
-![Language: GNU Bash](assets/badge-bash.svg)
-![Kernel: Linux VFS](assets/badge-linux.svg)
-![Platform: WSL and Git Bash](assets/badge-platform.svg)
-![Course: CSE210 OS](assets/badge-course.svg)
-![Project: Academic Lab](assets/badge-type.svg)
+![Language: GNU Bash](https://img.shields.io/badge/Language-GNU_Bash-4EAA25?style=for-the-badge&logo=gnubash&logoColor=white)
+![Kernel: Linux VFS](https://img.shields.io/badge/Kernel-Linux_VFS-FCC624?style=for-the-badge&logo=linux&logoColor=black)
+![Platform: WSL and Windows](https://img.shields.io/badge/Platform-WSL_and_Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)
+![Course: CSE210 OS](https://img.shields.io/badge/Course-CSE210_OS-8B5CF6?style=for-the-badge)
+![Project: Academic Lab](https://img.shields.io/badge/Project-Academic_Lab-EC4899?style=for-the-badge)
 
 **A Custom Unix Shell & Interactive Operating Systems Laboratory**
 
@@ -198,7 +198,6 @@ RetroOS_Shell/
 ├── retroos.sh             # Main shell entry point and interactive REPL loop
 ├── run.bat                # Windows 1-click launcher (Git Bash auto-detect)
 ├── README.md              # Project documentation and academic lab manual
-├── assets/                # Vector SVG badge graphics
 ├── scripts/               # Auxiliary execution and platform launcher scripts
 │   ├── run.sh             # Terminal runner script
 │   ├── launch-retroos.sh  # Desktop terminal launcher (Gnome, Konsole, XFCE)
