@@ -4,23 +4,32 @@
 
 ---
 
+## Screenshots Showcase
+
+![RetroOS Terminal Interface](screenshots/t1.png)
+
+![RetroOS Fastfetch and Live System Monitor](screenshots/t2.png)
+
+---
+
 ## Table of Contents
-1. [Academic Overview](#academic-overview)
-2. [System Architecture](#system-architecture)
-3. [Core Operating System Modules](#core-operating-system-modules)
+1. [Screenshots Showcase](#screenshots-showcase)
+2. [Academic Overview](#academic-overview)
+3. [System Architecture](#system-architecture)
+4. [Core Operating System Modules](#core-operating-system-modules)
    - [1. CPU Scheduling and Gantt Chart](#1-cpu-scheduling-and-gantt-chart-schedsh)
    - [2. Process Control Block and Process Lifecycle](#2-process-control-block-and-process-lifecycle-pcbsh--forkdemosh)
    - [3. Concurrency and Race Conditions](#3-concurrency-and-race-conditions-racesh)
    - [4. Deadlock Detection, Prevention and Avoidance](#4-deadlock-detection-prevention-and-avoidance-deadlocksh--bankerssh)
    - [5. Virtual Memory and Page Replacement](#5-virtual-memory-and-page-replacement-memorysh)
    - [6. Kernel Interface and Hardware Monitoring](#6-kernel-interface-and-hardware-monitoring-sysinfosh)
-4. [Shell Environment Features](#shell-environment-features)
-5. [Directory Structure](#directory-structure)
-6. [Getting Started and Installation](#getting-started-and-installation)
+5. [Shell Environment Features](#shell-environment-features)
+6. [Directory Structure](#directory-structure)
+7. [Getting Started and Installation](#getting-started-and-installation)
    - [Running on Linux or WSL (Recommended)](#running-on-linux-or-wsl-recommended)
    - [Running on Windows (Git Bash)](#running-on-windows-git-bash)
-7. [Command Reference Cheatsheet](#command-reference-cheatsheet)
-8. [Academic Metadata](#academic-metadata)
+8. [Command Reference Cheatsheet](#command-reference-cheatsheet)
+9. [Academic Metadata](#academic-metadata)
 
 ---
 
@@ -167,6 +176,9 @@ RetroOS_Shell/
 ├── retroos.sh             # Main shell entry point and interactive REPL loop
 ├── run.bat                # Windows 1-click launcher (Git Bash auto-detect)
 ├── README.md              # Project documentation and academic lab manual
+├── screenshots/           # Terminal screenshots showcase
+│   ├── t1.png             # Terminal welcome interface
+│   └── t2.png             # Fastfetch banner and live monitor
 ├── scripts/               # Auxiliary execution and platform launcher scripts
 │   ├── run.sh             # Terminal runner script
 │   ├── launch-retroos.sh  # Desktop terminal launcher (Gnome, Konsole, XFCE)
