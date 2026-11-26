@@ -1,6 +1,36 @@
+<div align="center">
+
 # RetroOS Shell (CSE210 Operating Systems Lab Edition)
 
+![Bash](https://img.shields.io/badge/Language-GNU_Bash_4+-4EAA25?style=for-the-badge&logo=gnu-bash&logoColor=white)
+![Linux](https://img.shields.io/badge/Kernel-Linux_VFS-FCC624?style=for-the-badge&logo=linux&logoColor=black)
+![Platform](https://img.shields.io/badge/Platform-WSL_|_Git_Bash-0078D6?style=for-the-badge&logo=windows&logoColor=white)
+![Course](https://img.shields.io/badge/Course-CSE210_Operating_Systems-8B5CF6?style=for-the-badge)
+![Type](https://img.shields.io/badge/Type-Academic_Lab_Project-EC4899?style=for-the-badge)
+
+**A Custom Unix Shell & Interactive Operating Systems Laboratory**
+
+*POSIX Core · CPU Scheduling · Concurrency & Deadlocks · Virtual Memory Demand Paging*
+
+</div>
+
+---
+
 > RetroOS is an interactive Unix shell and operating systems simulation laboratory developed entirely in GNU Bash (4.0+). It bridges standard POSIX shell utilities (REPL, command pipelines, I/O redirection, job control) with comprehensive demonstrations of foundational Operating System concepts—including CPU Scheduling, Process Control Blocks (PCB), Concurrency and Deadlocks, Dijkstra's Banker's Algorithm, and Virtual Memory Management.
+
+---
+
+## Tools and Technologies Used
+
+| Technology / Tool | Category | Role in RetroOS Shell |
+| :--- | :--- | :--- |
+| **GNU Bash (4.0+)** | Primary Language | Interactive shell REPL, syntax parser, and entire algorithm implementation |
+| **Linux `/proc` VFS** | Kernel Interface | Reading live process descriptors (`task_struct`), RAM, CPU stats, and uptime |
+| **POSIX Primitives** | System Calls | `fork()`, `exec()`, `wait()`, anonymous pipes, and signal handling (`SIGINT`, `SIGTERM`) |
+| **Atomic File Locks** | Synchronization | Mutual exclusion primitive using `set -o noclobber` for race and deadlock demos |
+| **`strace`** | Kernel Telemetry | Tracing live program system calls (`execve`, `openat`, `clone3`, `exit_group`) |
+| **ANSI 24-bit TrueColor** | Terminal Engine | Custom color themes (`cyber`, `dracula`, `retro`, `matrix`) and Gantt chart graphics |
+| **WSL2 / Git Bash** | Host Environment | Windows cross-platform execution compatibility layer |
 
 ---
 
@@ -13,9 +43,10 @@
 ---
 
 ## Table of Contents
-1. [Screenshots Showcase](#screenshots-showcase)
-2. [Academic Overview](#academic-overview)
-3. [System Architecture](#system-architecture)
+1. [Tools and Technologies Used](#tools-and-technologies-used)
+2. [Screenshots Showcase](#screenshots-showcase)
+3. [Academic Overview](#academic-overview)
+4. [System Architecture](#system-architecture)
 4. [Core Operating System Modules](#core-operating-system-modules)
    - [1. CPU Scheduling and Gantt Chart](#1-cpu-scheduling-and-gantt-chart-schedsh)
    - [2. Process Control Block and Process Lifecycle](#2-process-control-block-and-process-lifecycle-pcbsh--forkdemosh)
