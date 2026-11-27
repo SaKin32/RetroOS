@@ -61,7 +61,7 @@ _mem_run() {
                 if (( fr[j] < 0 )); then cell="-"; else cell=${fr[j]}; fi
                 line+=$(printf " %3s" "$cell")
             done
-            if (( hit )); then line+="   ${GRN}hit${RST}"; else line+="   ${RED}FAULT${RST}"; fi
+            if (( hit )); then line+="   ${GRN}${BLD}✔ HIT ${RST}"; else line+="   ${RED}${BLD}✘ FAULT${RST}"; fi
             echo "$line"
         fi
     done
@@ -70,10 +70,15 @@ _mem_run() {
 # _mem_summary N  -> faults, hits and ratios of the last run
 _mem_summary() {
     local n=$1
+    local fratio=$(awk -v f=$MEM_FAULTS -v n=$n 'BEGIN{printf "%.1f%%", 100*f/n}')
+    local hratio=$(awk -v h=$MEM_HITS -v n=$n 'BEGIN{printf "%.1f%%", 100*h/n}')
     echo
-    echo "  Page faults: ${RED}${BLD}${MEM_FAULTS}${RST}   Hits: ${GRN}${BLD}${MEM_HITS}${RST}   (of $n references)"
-    echo "  Fault ratio: $(awk -v f=$MEM_FAULTS -v n=$n 'BEGIN{printf "%.1f%%", 100*f/n}')" \
-         "  Hit ratio: $(awk -v h=$MEM_HITS -v n=$n 'BEGIN{printf "%.1f%%", 100*h/n}')"
+    echo "  ${CYN}┌── Memory Performance Metrics ────────────────────────────────┐${RST}"
+    printf "  ${CYN}│${RST}  Page Faults : ${RED}${BLD}%-5s${RST} │ Page Hits : ${GRN}${BLD}%-5s${RST} │ References : %-5s  ${CYN}│${RST}\n" \
+        "$MEM_FAULTS" "$MEM_HITS" "$n"
+    printf "  ${CYN}│${RST}  Fault Ratio : ${RED}%-5s${RST}   │ Hit Ratio : ${GRN}%-5s${RST}   │ Rating     : ${BLD}%-5s${RST}   ${CYN}│${RST}\n" \
+        "$fratio" "$hratio" "$hratio"
+    echo "  ${CYN}└──────────────────────────────────────────────────────────────┘${RST}"
 }
 
 _mem_check() {   # _mem_check FRAMES PAGE...
@@ -108,15 +113,18 @@ cmd_memory() {
         compare)
             shift; F=$1; shift; _mem_check "$F" "$@" || return 1
             n=$#
-            title "PAGE REPLACEMENT COMPARISON  ($F frames, $n references)"
-            printf "  %-6s %8s %8s %12s\n" "Algo" "Faults" "Hits" "Hit ratio"
-            echo "  -----------------------------------"
+            title "PAGE REPLACEMENT COMPARISON ($F frames, $n references)"
+            echo "  ┌────────┬────────────┬────────────┬─────────────┐"
+            printf "  │ ${BLD}%-6s${RST} │ ${BLD}%-10s${RST} │ ${BLD}%-10s${RST} │ ${BLD}%-11s${RST} │\n" "Policy" "Page Fault" "Page Hits" "Hit Ratio"
+            echo "  ├────────┼────────────┼────────────┼─────────────┤"
             for a in fifo lru opt; do
                 _mem_run $a "$F" 1 "$@"
-                printf "  %-6s %8s %8s %11s%%\n" "${a^^}" "$MEM_FAULTS" "$MEM_HITS" \
-                    "$(awk -v h=$MEM_HITS -v n=$n 'BEGIN{printf "%.1f", 100*h/n}')"
+                local hrat=$(awk -v h=$MEM_HITS -v n=$n 'BEGIN{printf "%.1f%%", 100*h/n}')
+                printf "  │ ${WHT}%-6s${RST} │ ${RED}%10s${RST} │ ${GRN}%10s${RST} │ ${CYN}%11s${RST} │\n" "${a^^}" "$MEM_FAULTS" "$MEM_HITS" "$hrat"
             done
-            note "OPT is the best possible (it sees the future) - real OSes can only approximate it."
+            echo "  └────────┴────────────┴────────────┴─────────────┘"
+            echo
+            note "OPT represents theoretical upper bound (clairvoyant optimal replacement)."
             return ;;
         fifo|lru|opt)
             shift; F=$1; shift; _mem_check "$F" "$@" || return 1
