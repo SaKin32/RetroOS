@@ -88,8 +88,9 @@ _pcb_sim() {
                 Terminated) line+=$(printf " ${DIM}%-13s${RST}" "Done") ;;
             esac
         done
-        if (( cur >= 0 )); then line+="  P$(( cur + 1 ))"; else line+="  idle"; fi
+        if (( cur >= 0 )); then line+="  ${GRN}P$(( cur + 1 ))${RST}"; else line+="  ${DIM}idle${RST}"; fi
         echo "$line"
+        sleep 0.1
 
         for (( i = 0; i < n; i++ )); do           # every Ready process waits one more tick
             if [[ ${st[i]} == Ready ]]; then wait[i]=$(( wait[i] + 1 )); fi
