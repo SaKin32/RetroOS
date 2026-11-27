@@ -237,21 +237,23 @@ _sch_run() {
     SCH_QUIET=0
 }
 
-# sched compare : same processes, every algorithm, one table
+# sched compare : same processes, every algorithm, beautiful comparison box table
 _sch_compare() {
     local a best="" bestw=999999 lbl
     echo
-    printf "  %-22s %16s %16s\n" "Algorithm" "Avg turnaround" "Avg waiting"
-    echo "  ----------------------------------------------------------"
+    echo "  ${CYN}${BLD}CPU Scheduling Benchmark & Performance Comparison:${RST}"
+    echo "  ┌────────────────────────┬──────────────────┬──────────────────┐"
+    printf "  │ ${BLD}%-22s${RST} │ ${BLD}%-16s${RST} │ ${BLD}%-16s${RST} │\n" "Algorithm" "Avg Turnaround" "Avg Waiting Time"
+    echo "  ├────────────────────────┼──────────────────┼──────────────────┤"
     for a in fcfs sjf prio rr; do
         _sch_run "$a"
         case $a in fcfs) lbl="FCFS";; sjf) lbl="SJF";; prio) lbl="Priority";; rr) lbl="Round Robin (q=2)";; esac
-        printf "  %-22s %16s %16s\n" "$lbl" "$SCH_AVG_T" "$SCH_AVG_W"
+        printf "  │ ${WHT}%-22s${RST} │ %13s ms │ %13s ms │\n" "$lbl" "$SCH_AVG_T" "$SCH_AVG_W"
         if awk -v a="$SCH_AVG_W" -v b="$bestw" 'BEGIN{exit !(a<b)}'; then best=$lbl; bestw=$SCH_AVG_W; fi
     done
+    echo "  └────────────────────────┴──────────────────┴──────────────────┘"
     echo
-    echo "  Lowest average waiting time: ${GRN}${BLD}${best}${RST} (${bestw})"
-    note "SJF always gives the smallest average waiting time, but long jobs can wait"
-    note "very long (starvation). Priority has the same risk for low-priority jobs."
+    echo "  ${GRN}${BLD}★ Best Performance (Lowest Avg Waiting): ${WHT}${best} (${bestw} ms)${RST}"
+    note "SJF minimizes average waiting time; Round Robin provides fair time-sharing."
     echo
 }
