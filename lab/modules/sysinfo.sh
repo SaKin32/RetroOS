@@ -29,16 +29,17 @@ cmd_meminfo() {
     total=$(_mem_kb MemTotal); free=$(_mem_kb MemFree); avail=$(_mem_kb MemAvailable)
     swt=$(_mem_kb SwapTotal);  swf=$(_mem_kb SwapFree)
     used=$(( total - avail )); pct=$(( used * 100 / total ))
-    title "MEMORY INFO  (from /proc/meminfo)"
-    printf "  %-16s %8s MB\n" "Total RAM"  $(( total / 1024 ))
-    printf "  %-16s %8s MB\n" "Used"       $(( used / 1024 ))
-    printf "  %-16s %8s MB\n" "Available"  $(( avail / 1024 ))
-    printf "  %-16s %8s MB\n" "Free (unused)" $(( free / 1024 ))
-    printf "  %-16s %8s MB used of %s MB\n" "Swap" $(( (swt - swf) / 1024 )) $(( swt / 1024 ))
+    title "VIRTUAL MEMORY TELEMETRY (/proc/meminfo)"
+    echo "  ┌────────────────────────────────┬──────────────────────────────┐"
+    printf "  │ ${CYN}%-30s${RST} │ ${WHT}%10s MB${RST}                 │\n" "Total Physical RAM" "$(( total / 1024 ))"
+    printf "  │ ${CYN}%-30s${RST} │ ${GRN}%10s MB${RST}                 │\n" "Currently Used" "$(( used / 1024 ))"
+    printf "  │ ${CYN}%-30s${RST} │ ${CYN}%10s MB${RST}                 │\n" "Available for Allocation" "$(( avail / 1024 ))"
+    printf "  │ ${CYN}%-30s${RST} │ ${DIM}%10s MB${RST}                 │\n" "Completely Free" "$(( free / 1024 ))"
+    printf "  │ ${CYN}%-30s${RST} │ ${PUR}%10s MB${RST} of %s MB       │\n" "Swap Space" "$(( (swt - swf) / 1024 ))" "$(( swt / 1024 ))"
+    echo "  └────────────────────────────────┴──────────────────────────────┘"
     echo
-    echo "  RAM  ${GRN}$(_bar $pct)${RST} ${pct}%"
-    note "Available > Free because the kernel also uses spare RAM as a disk cache"
-    note "and gives it back to programs when they need it."
+    echo "  RAM Utilization: $(_bar $pct) ${BLD}${pct}%${RST}"
+    note "Available memory includes page buffers reclaimed by kernel on-demand."
 }
 
 cmd_kinfo() {
@@ -50,29 +51,24 @@ cmd_kinfo() {
     btime=$(awk '$1 == "btime" {print $2}' /proc/stat)
     cpus=$(nproc 2> /dev/null || grep -c ^processor /proc/cpuinfo)
     load=$(cut -d' ' -f1-3 /proc/loadavg)
-    title "KERNEL INFO"
-    printf "  ${YEL}%-22s${RST} %s\n" \
-        "Kernel name"        "$(uname -s)" \
-        "Kernel release"     "$(uname -r)" \
-        "Architecture"       "$(uname -m)" \
-        "Uptime"             "${days}d ${hrs}h ${mins}m" \
-        "Boot time"          "$(date -d @"$btime" '+%Y-%m-%d %H:%M' 2> /dev/null)" \
-        "CPU cores"          "$cpus" \
-        "Load average"       "$load" \
-        "Running processes"  "$procs" \
-        "Context switches"   "$ctxt (since boot)" \
-        "Our privilege mode" "$( (( KERNEL_MODE )) && echo 'Ring 0 (simulated)' || echo 'Ring 3 - user mode')"
+    title "KERNEL ARCHITECTURE & TELEMETRY (/proc)"
+    echo "  ┌────────────────────────────────┬──────────────────────────────┐"
+    printf "  │ ${CYN}%-30s${RST} │ ${WHT}%-28s${RST} │\n" "Kernel Release" "$(uname -s) $(uname -r)"
+    printf "  │ ${CYN}%-30s${RST} │ ${WHT}%-28s${RST} │\n" "Host Architecture" "$(uname -m)"
+    printf "  │ ${CYN}%-30s${RST} │ ${WHT}%-28s${RST} │\n" "System Uptime" "${days}d ${hrs}h ${mins}m"
+    printf "  │ ${CYN}%-30s${RST} │ ${WHT}%-28s${RST} │\n" "CPU Cores Online" "$cpus cores"
+    printf "  │ ${CYN}%-30s${RST} │ ${WHT}%-28s${RST} │\n" "Load Average (1m, 5m, 15m)" "$load"
+    printf "  │ ${CYN}%-30s${RST} │ ${WHT}%-28s${RST} │\n" "Active Task Descriptors" "$procs processes"
+    printf "  │ ${CYN}%-30s${RST} │ ${WHT}%-28s${RST} │\n" "Total Context Switches" "$ctxt"
+    printf "  │ ${CYN}%-30s${RST} │ ${PUR}${BLD}%-28s${RST} │\n" "Simulated CPU Ring" "$( (( KERNEL_MODE )) && echo 'Ring 0 (Kernel Supervisor)' || echo 'Ring 3 (User Unprivileged)')"
+    echo "  └────────────────────────────────┴──────────────────────────────┘"
     echo
-    echo "  How a command reaches the kernel:"
-    echo "    ${CYN}You type 'ls'${RST}"
-    echo "       |  RetroOS shell (user mode)   fork() -> exec()"
-    echo "       v"
-    echo "    ${PUR}System call interface${RST}   (trap: switch to kernel mode)"
-    echo "       v"
-    echo "    ${RED}Linux kernel${RST}  scheduler | memory manager | file system | drivers"
-    echo "       v"
-    echo "    Hardware  (CPU, RAM, disk)"
-    note "Try:  trace ls     to watch the real system calls."
+    echo "  ${CYN}${BLD}Kernel Privilege Trapping Hierarchy:${RST}"
+    echo "    ${CYN}User Space (Ring 3)${RST}  ──> Command execution: fork() -> exec()"
+    echo "            │"
+    echo "            ▼  ${YEL}[Trap via System Call: int 0x80 / syscall]${RST}"
+    echo "    ${PUR}Kernel Space (Ring 0)${RST} ──> Scheduler, VFS, Memory Manager, Device Drivers"
+    note "Execute 'mode-switch' to toggle Ring privilege or 'trace ls' to inspect syscalls."
 }
 
 # cpu usage over one second, from the 'cpu' line of /proc/stat
