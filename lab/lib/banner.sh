@@ -43,16 +43,17 @@ _uptime_str() {
     else echo "$(( m > 0 ? m : 1 )) mins"; fi
 }
 
-# _styled_user -> convert username to sleek small-caps font
-_styled_user() {
+# _code_font -> convert text to typewriter monospace code font
+_code_font() {
     local str="${1:-retro}" out="" ch i
     local -A map=(
-        [a]='ᴀ' [b]='ʙ' [c]='ᴄ' [d]='ᴅ' [e]='ᴇ' [f]='ꜰ' [g]='ɢ' [h]='ʜ' [i]='ɪ'
-        [j]='ᴊ' [k]='ᴋ' [l]='ʟ' [m]='ᴍ' [n]='ɴ' [o]='ᴏ' [p]='ᴘ' [q]='ǫ' [r]='ʀ'
-        [s]='s' [t]='ᴛ' [u]='ᴜ' [v]='ᴠ' [w]='ᴡ' [x]='x' [y]='ʏ' [z]='ᴢ'
-        [A]='ᴀ' [B]='ʙ' [C]='ᴄ' [D]='ᴅ' [E]='ᴇ' [F]='ꜰ' [G]='ɢ' [H]='ʜ' [I]='ɪ'
-        [J]='ᴊ' [K]='ᴋ' [L]='ʟ' [M]='ᴍ' [N]='ɴ' [O]='ᴏ' [P]='ᴘ' [Q]='ǫ' [R]='ʀ'
-        [S]='s' [T]='ᴛ' [U]='ᴜ' [V]='ᴠ' [W]='ᴡ' [X]='x' [Y]='ʏ' [Z]='ᴢ'
+        [a]='𝚊' [b]='𝚋' [c]='𝚌' [d]='𝚍' [e]='𝚎' [f]='𝚏' [g]='𝚐' [h]='𝚑' [i]='𝚒'
+        [j]='𝚓' [k]='𝚔' [l]='𝚕' [m]='𝚖' [n]='𝚗' [o]='𝚘' [p]='𝚙' [q]='𝚚' [r]='𝚛'
+        [s]='𝚜' [t]='𝚝' [u]='𝚞' [v]='𝚟' [w]='𝚠' [x]='𝚡' [y]='𝚢' [z]='𝚣'
+        [A]='𝙰' [B]='𝙱' [C]='𝙲' [D]='𝙳' [E]='𝙴' [F]='𝙵' [G]='𝙶' [H]='𝙷' [I]='𝙸'
+        [J]='𝙹' [K]='𝙺' [L]='𝙻' [M]='𝙼' [N]='𝙽' [O]='𝙾' [P]='𝙿' [Q]='𝚀' [R]='𝚁'
+        [S]='𝚂' [T]='𝚃' [U]='𝚄' [V]='𝚅' [W]='𝚆' [X]='𝚇' [Y]='𝚈' [Z]='𝚉'
+        [0]='𝟶' [1]='𝟷' [2]='𝟸' [3]='𝟹' [4]='𝟺' [5]='𝟻' [6]='𝟼' [7]='𝟽' [8]='𝟾' [9]='𝟿'
     )
     for (( i = 0; i < ${#str}; i++ )); do
         ch="${str:i:1}"
@@ -60,6 +61,9 @@ _styled_user() {
     done
     echo "$out"
 }
+
+# _styled_user -> wrapper for code font
+_styled_user() { _code_font "$@"; }
 
 # _banner_compact : small-window version, no cat; every line is short enough not to wrap
 _banner_compact() {
@@ -78,7 +82,7 @@ _banner_compact() {
     printf "  ${_CYN}■${R} %sIP%s        %s:%s %s\n" "$B" "$R" "$_DIV" "$R" "$ip"
     printf "  ${_CYN}■${R} %sModules%s   %s:%s 37 Interactive Simulators [CSE210]\n" "$B" "$R" "$_DIV" "$R"
     echo "  ${_DIV}${line}${R}"
-    echo "  ${_PUR}${B}Welcome back, ${u}.${R}"
+    echo "  ${_PUR}${B}𝚆𝙴𝙻𝙲𝙾𝙼𝙴_𝙱𝙰𝙲𝙺 : ${styled_u}${R}"
     echo "  ${_CYN}◆${R} $(date '+%A, %B %d %Y  %H:%M')"
     echo "  ${_AMB}◆${R} Programs must be written for people to read, not machines to execute."
     echo
@@ -140,7 +144,7 @@ show_banner() {
     printf '%s%s\n'                                 "$_PUR" "${CAT[16]}"
     printf '%s%s\n'                                 "$_PUR" "${CAT[17]}"
     echo
-    echo "${_PUR}${B}  W E L C O M E   B A C K ,   ${spaced}${R}"
+    echo "${_PUR}${B}  𝚆𝙴𝙻𝙲𝙾𝙼𝙴_𝙱𝙰𝙲𝙺 : ${styled_u}${R}"
     echo "  ${_CYN}◆${R} $(date '+%A, %B %d %Y  %H:%M')"
     echo "  ${_AMB}◆${R} Programs must be written for people to read, not machines to execute."
     echo
