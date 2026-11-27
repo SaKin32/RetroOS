@@ -95,10 +95,10 @@ _seq_str() {
 _report_safety() {
     if _is_safe 1; then
         echo
-        echo "  ${GRN}${BLD}SAFE state.${RST} Safe sequence: $(_seq_str)"
+        echo "  ${GRN}${BLD}✔ SYSTEM IS IN A SAFE STATE!${RST} Valid Safe Sequence: ${CYN}${BLD}$(_seq_str)${RST}"
     else
         echo
-        echo "  ${RED}${BLD}UNSAFE state.${RST} No safe sequence exists (deadlock is possible)."
+        echo "  ${RED}${BLD}✘ SYSTEM IS IN AN UNSAFE STATE!${RST} No deadlock-free execution order exists."
     fi
 }
 
@@ -171,35 +171,35 @@ _custom_input() {
 }
 
 demo_bankers() {
-    title "BANKER'S ALGORITHM  (deadlock avoidance)"
-    note "The OS grants a request only if the resulting state is still SAFE."
+    title "DIJKSTRA'S BANKER'S ALGORITHM (DEADLOCK AVOIDANCE)"
+    note "Proactive safety validation: grants allocations only if system remains SAFE."
     _load_example
-    note "Loaded the classic textbook example (5 processes, resources 0 1 2)."
+    note "Loaded standard Operating Systems textbook scenario (5 Processes, 3 Resources: A, B, C)."
 
     local choice
     while true; do
         echo
-        echo "  1) Show state + run safety algorithm"
-        echo "  2) Make a resource request"
-        echo "  3) Enter my own data"
-        echo "  4) Reset to textbook example"
-        echo "  5) Show example requests to try"
-        echo "  0) Back"
-        ask_int "Choose" 0 5; choice=$REPLY
+        echo "  ${PUR}┌──${CYN} Banker's Algorithm Operations ${PUR}───────────────────────┐${RST}"
+        echo "  ${PUR}│${RST}  ${GRN}1)${RST} ${BLD}Inspect State & Find Safe Sequence${RST}                  ${PUR}│${RST}"
+        echo "  ${PUR}│${RST}  ${GRN}2)${RST} ${BLD}Simulate Resource Request Vector${RST}                    ${PUR}│${RST}"
+        echo "  ${PUR}│${RST}  ${GRN}3)${RST} ${BLD}Enter Custom Matrices (Allocation / Max / Available)${RST} ${PUR}│${RST}"
+        echo "  ${PUR}│${RST}  ${GRN}4)${RST} Reset to Default Textbook Benchmark                 ${PUR}│${RST}"
+        echo "  ${PUR}│${RST}  ${GRN}5)${RST} Display Recommended Test Scenarios                  ${PUR}│${RST}"
+        echo "  ${PUR}│${RST}  ${RED}0)${RST} Return to Shell                                     ${PUR}│${RST}"
+        echo "  ${PUR}└────────────────────────────────────────────────────────┘${RST}"
+        ask_int "Select Operation" 0 5; choice=$REPLY
 
         case $choice in
             1) _print_state; _report_safety ;;
             2) _print_state; echo; _request ;;
             3) _custom_input ;;
-            4) _load_example; note "Reset." ;;
+            4) _load_example; note "Reset to initial state." ;;
             5) echo
-               echo "  With the textbook example, make these requests ONE AFTER ANOTHER"
-               echo "  (each request is judged on the state left by the previous one):"
-               echo "   1) P1 requests [1 0 2]  -> GRANTED   (new state is still safe)"
-               echo "   2) P4 requests [3 3 0]  -> WAIT      (only [2 3 0] is available now)"
-               echo "   3) P0 requests [0 2 0]  -> DENIED    (would lead to an UNSAFE state)"
-               echo "   4) P1 requests [5 0 0]  -> DENIED    (exceeds its maximum claim)"
-               echo "  Tip: on a fresh state P4 [3 3 0] is DENIED as unsafe instead." ;;
+               echo "  ${CYN}${BLD}Recommended Sequential Test Requests:${RST}"
+               echo "   ${GRN}1)${RST} P1 requests [1 0 2]  -> ${GRN}${BLD}GRANTED${RST} (State remains SAFE)"
+               echo "   ${YEL}2)${RST} P4 requests [3 3 0]  -> ${YEL}${BLD}WAIT${RST}    (Insufficient Available resources)"
+               echo "   ${RED}3)${RST} P0 requests [0 2 0]  -> ${RED}${BLD}DENIED${RST}  (Causes deadlock; state becomes UNSAFE)"
+               echo "   ${RED}4)${RST} P1 requests [5 0 0]  -> ${RED}${BLD}DENIED${RST}  (Exceeds maximum declared claim)" ;;
             0) return ;;
         esac
     done
