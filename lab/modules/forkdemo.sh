@@ -8,61 +8,56 @@
 cmd_forkdemo() {
     local pid st
 
-    title "FORK / EXEC / WAIT DEMO"
+    title "POSIX PROCESS LIFECYCLE DEMO (FORK / EXEC / WAIT / IPC)"
 
     echo
-    echo "${CYN}1) Who am I?${RST}"
-    echo "   shell PID = $$      parent PID = $PPID"
+    echo "  ${CYN}${BLD}[Step 1/7] Process Identity:${RST}"
+    echo "   Current Shell PID = ${GRN}$$${RST}  │  Parent Process PID (PPID) = ${PUR}$PPID${RST}"
 
     echo
-    echo "${CYN}2) fork()  - ( ... ) creates a CHILD copy of the shell${RST}"
-    ( echo "   child : my PID = $BASHPID, my parent = $$" )
-    note "The child is a copy of the parent with a NEW PID. fork() returns twice:"
-    note "the child PID to the parent, and 0 to the child."
+    echo "  ${CYN}${BLD}[Step 2/7] fork() Process Cloning:${RST}"
+    ( echo "   Child Process spawned: PID = ${GRN}$BASHPID${RST}, Parent PID = ${PUR}$$${RST}" )
+    note "fork() creates an exact memory replica. Parent receives Child PID; Child receives 0."
 
     echo
-    echo "${CYN}3) exec()  - replace the child with a different program${RST}"
+    echo "  ${CYN}${BLD}[Step 3/7] exec() Image Replacement:${RST}"
     (
-        echo "   before exec: PID = $BASHPID  (running the shell code)"
-        exec bash -c 'echo "   after  exec: PID = $$  (SAME PID, new program: bash -c)"'
+        echo "   Before exec(): PID = ${GRN}$BASHPID${RST} (executing current shell script)"
+        exec bash -c 'echo "   After  exec(): PID = '$BASHPID' (retained identical PID, swapped executable image)"'
     )
-    note "exec() does not create a process, it swaps the program inside the same one."
-    note "So a shell runs a command as:  fork() -> child calls exec() -> parent wait()."
+    note "exec() replaces text/data segments without allocating a new PID."
 
     echo
-    echo "${CYN}4) wait()  - the parent collects the child's exit status${RST}"
+    echo "  ${CYN}${BLD}[Step 4/7] wait() Child Termination Synchronization:${RST}"
     ( sleep 1; exit 7 ) &
     pid=$!
-    echo "   started child $pid in the background (&), the shell did not block"
-    wait "$pid"; st=$?
-    echo "   wait() returned: child $pid finished with exit status ${BLD}$st${RST}"
-    note "'echo \$?' shows this number. 0 = success, anything else = error."
+    echo "   Background Worker started at PID ${GRN}$pid${RST}"
+    wait "$pid" 2>/dev/null; st=$?
+    echo "   wait() harvested exit status: ${YEL}${BLD}$st${RST} (Non-zero indicates exit code 7)"
 
     echo
-    echo "${CYN}5) pipe  - two processes joined by a kernel buffer${RST}"
-    { echo "   writer PID = $BASHPID sends: hello" >&2; echo hello; } |
-    { read -r msg; echo "   reader PID = $BASHPID received: $msg"; }
-    note "Two DIFFERENT PIDs: 'a | b' forks one process per side, connected by pipe()."
-    note "The writer's stdout and the reader's stdin are the two ends of the pipe."
+    echo "  ${CYN}${BLD}[Step 5/7] pipe() Kernel IPC Buffer:${RST}"
+    { echo "   Writer [PID $BASHPID] transmitted payload through kernel buffer" >&2; echo "RetroOS_IPC_Packet"; } |
+    { read -r msg; echo "   Reader [PID $BASHPID] received payload: ${GRN}$msg${RST}"; }
+    note "Unidirectional anonymous pipe connected between stdout and stdin."
 
     echo
-    echo "${CYN}6) zombie  - a finished child that nobody has wait()ed for${RST}"
-    bash -c 'sleep 0.2 & exec sleep 3' &       # parent execs 'sleep 3' and never waits
+    echo "  ${RED}${BLD}[Step 6/7] Zombie Process (State 'Z') Detection:${RST}"
+    bash -c 'sleep 0.2 & exec sleep 3' &
     pid=$!
     sleep 1
-    echo "   children of $pid (the child 'sleep 0.2' already finished):"
-    ps -o pid,ppid,stat,comm --ppid "$pid" 2> /dev/null | sed 's/^/     /'
-    note "STAT 'Z' = zombie: it is dead, but its entry stays in the process table"
-    note "until the parent calls wait(). Too many zombies fill the table."
-    kill "$pid" 2> /dev/null; wait "$pid" 2> /dev/null
+    echo "   Process Table entry for orphaned child of PID $pid:"
+    ps -o pid,ppid,stat,comm --ppid "$pid" 2> /dev/null | awk 'NR==1{print "     "$0} NR>1{gsub(/Z/,"\033[41;1;97m Z \033[0m"); print "     "$0}'
+    note "State 'Z' indicates process has terminated but descriptor remains in task_struct."
+    kill -9 "$pid" 2> /dev/null; wait "$pid" 2> /dev/null || true
 
     echo
-    echo "${CYN}7) signal  - the kernel tells a process to stop${RST}"
+    echo "  ${CYN}${BLD}[Step 7/7] POSIX Signal Delivery (SIGTERM):${RST}"
     sleep 30 &
     pid=$!
-    echo "   started 'sleep 30' as PID $pid, now sending SIGTERM (15) ..."
-    kill -TERM "$pid"; wait "$pid" 2> /dev/null; st=$?
-    echo "   exit status = ${BLD}$st${RST}  (128 + signal number 15 = 143)"
-    note "Ctrl+C sends SIGINT (2) to the foreground program, not to the shell itself."
+    echo "   Spawned PID ${GRN}$pid${RST}, dispatching SIGTERM (Signal 15)..."
+    kill -TERM "$pid" 2>/dev/null; wait "$pid" 2>/dev/null; st=$?
+    echo "   Process terminated with signal exit code: ${YEL}${BLD}$st${RST} (128 + 15 = 143)"
+    note "Signals provide asynchronous inter-process notification."
     echo
 }
