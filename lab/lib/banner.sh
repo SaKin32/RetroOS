@@ -148,10 +148,19 @@ show_banner() {
     ip=$(hostname -I 2> /dev/null | awk '{print $1}'); ip=${ip:-127.0.0.1}
     cpu=$(awk -F': ' '/model name/{print $2; exit}' /proc/cpuinfo 2> /dev/null | sed -e 's/[[:space:]]\+/ /g' -e 's/^[[:space:]]*//;s/[[:space:]]*$//')
     [[ -z "$cpu" ]] && cpu="${cores} Cores Online"
-    if (( ${#cpu} > 36 )); then cpu="${cpu:0:33}..."; fi
     styled_u=$(_styled_user "$u")
-    for (( i = 0; i < ${#u}; i++ )); do spaced+="${u:i:1} "; done
-    spaced=${spaced^^}; spaced=${spaced% }
+
+    local r_kernel="$kernel"
+    if [[ "$r_kernel" =~ microsoft ]]; then
+        r_kernel="Linux $(uname -r | cut -d'-' -f1) (WSL2)"
+    elif (( ${#r_kernel} > 26 )); then
+        r_kernel="${r_kernel:0:23}..."
+    fi
+
+    local r_cpu="$cpu"
+    if (( ${#r_cpu} > 26 )); then
+        r_cpu="${r_cpu:0:23}..."
+    fi
 
     local R=$'\033[0m' B=$'\033[1m'
     if [[ -n ${NO_COLOR:-} ]]; then
@@ -164,24 +173,26 @@ show_banner() {
 
     local dots=$'\033[38;2;255;255;255m● \033[38;2;137;220;235m● \033[38;2;116;199;236m● \033[38;2;137;180;250m● \033[38;2;203;166;247m● \033[38;2;251;191;36m● \033[38;2;74;222;128m● \033[38;2;244;114;182m●'
 
+    printf '\033[?7l'   # Lock auto-wrap off to guarantee cat ASCII block never breaks
     echo
     printf '%s%s  %s%s%s%s\n'                      "$_PUR" "${CAT[1]}"  "$_SKY" "$B" "$styled_u" "$R"
-    printf '%s%s  %s────────────────────────────────────────%s\n' "$_PUR" "${CAT[2]}"  "$_DIV" "$R"
+    printf '%s%s  %s──────────────────────────────────%s\n' "$_PUR" "${CAT[2]}"  "$_DIV" "$R"
     printf '%s%s  %s■%s %sOS%s        %s:%s RetroOS (Linux %s)\n' "$_PUR" "${CAT[3]}" "$_CYN" "$R" "$B" "$R" "$_DIV" "$R" "$(uname -m)"
-    printf '%s%s  %s■%s %sKernel%s    %s:%s %s\n'     "$_PUR" "${CAT[4]}" "$_CYN" "$R" "$B" "$R" "$_DIV" "$R" "$kernel"
+    printf '%s%s  %s■%s %sKernel%s    %s:%s %s\n'     "$_PUR" "${CAT[4]}" "$_CYN" "$R" "$B" "$R" "$_DIV" "$R" "$r_kernel"
     printf '%s%s  %s■%s %sUptime%s    %s:%s %s\n'     "$_PUR" "${CAT[5]}" "$_CYN" "$R" "$B" "$R" "$_DIV" "$R" "$up"
     printf '%s%s  %s■%s %sShell%s     %s:%s retroos (bash %s)\n' "$_PUR" "${CAT[6]}" "$_CYN" "$R" "$B" "$R" "$_DIV" "$R" "${BASH_VERSION%%(*}"
-    printf '%s%s  %s■%s %sCPU%s       %s:%s %s\n'     "$_PUR" "${CAT[7]}" "$_CYN" "$R" "$B" "$R" "$_DIV" "$R" "$cpu"
+    printf '%s%s  %s■%s %sCPU%s       %s:%s %s\n'     "$_PUR" "${CAT[7]}" "$_CYN" "$R" "$B" "$R" "$_DIV" "$R" "$r_cpu"
     printf '%s%s  %s■%s %sMemory%s    %s:%s %s\n'     "$_PUR" "${CAT[8]}" "$_CYN" "$R" "$B" "$R" "$_DIV" "$R" "$mem"
     printf '%s%s  %s■%s %sHost%s      %s:%s %s\n'     "$_PUR" "${CAT[9]}" "$_CYN" "$R" "$B" "$R" "$_DIV" "$R" "$host"
     printf '%s%s  %s■%s %sIP%s        %s:%s %s\n'     "$_PUR" "${CAT[10]}" "$_CYN" "$R" "$B" "$R" "$_DIV" "$R" "$ip"
-    printf '%s%s  %s■%s %sModules%s   %s:%s 37 Interactive Simulators [CSE210]\n' "$_PUR" "${CAT[11]}" "$_CYN" "$R" "$B" "$R" "$_DIV" "$R"
+    printf '%s%s  %s■%s %sModules%s   %s:%s 37 Interactive Labs [CSE210]\n' "$_PUR" "${CAT[11]}" "$_CYN" "$R" "$B" "$R" "$_DIV" "$R"
     printf '%s%s\n'                                 "$_PUR" "${CAT[12]}"
     printf '%s%s  %s%s\n'                           "$_PUR" "${CAT[13]}" "$dots" "$R"
     printf '%s%s\n'                                 "$_PUR" "${CAT[14]}"
     printf '%s%s\n'                                 "$_PUR" "${CAT[15]}"
     printf '%s%s\n'                                 "$_PUR" "${CAT[16]}"
     printf '%s%s\n'                                 "$_PUR" "${CAT[17]}"
+    printf '\033[?7h'   # Re-enable auto-wrap
     echo
     echo "  ${B}$(_rainbow_welcome "$u")${R}"
     echo "  ${_CYN}◆${R} $(date '+%A, %B %d %Y  %H:%M')"

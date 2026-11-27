@@ -184,11 +184,15 @@ trap 'history -w' EXIT           # save the history when we leave
 # so while the welcome banner is still the only thing on screen we simply draw it again
 # (compact version for a narrow window, full cat for a wide one).
 BANNER_FRESH=1
+_DRAWING_BANNER=0
 _on_resize() {
     (( BANNER_FRESH )) || return 0
+    (( _DRAWING_BANNER )) && return 0
+    _DRAWING_BANNER=1
     printf '\033[H\033[2J\033[3J'   # wipe screen AND scrollback, so old copies do not pile up
     show_banner
     printf '%s' "$PROMPT"
+    _DRAWING_BANNER=0
 }
 trap '_on_resize' WINCH
 
@@ -197,7 +201,9 @@ printf '\033[H\033[2J\033[3J'
 clear 2> /dev/null || true
 
 cd "$HOME" || true
+_DRAWING_BANNER=1
 show_banner
+_DRAWING_BANNER=0
 
 while true; do                   # ===== the main loop =====
     make_prompt
