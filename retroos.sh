@@ -61,38 +61,46 @@ user() {
 
 help() {
     local -a rows=(
-        "SHELL^"
-        "cd, ls, pwd, history, jobs, kill^normal shell commands (any Linux program works)"
-        "cmd1 | cmd2   cmd > file^pipes and redirects; also  &  &&  ||  ;  and variables"
-        "alias, unalias, export^aliases and environment variables"
-        "theme <name>^cyber, retro, matrix, dracula (purple)"
-        "user [name]^show or change your user name"
-        "help, exit^this list / leave the shell"
-        "CPU SCHEDULING AND PROCESSES^"
-        "sched fcfs|sjf|prio|rr ...^scheduling with Gantt chart, e.g. sched rr 2 0:5 1:3 2:8"
-        "sched compare 0:5 1:3 2:8^all algorithms side by side"
-        "pcb  |  pcb <pid>^the real Process Control Block from the kernel"
-        "pcb sim [q] 0:5 1:3^process states tick by tick (New/Ready/Running/Done)"
-        "forkdemo^fork, exec, wait, pipe, zombie and signal with real PIDs"
-        "SYNCHRONIZATION^"
-        "race^race condition with and without a lock"
-        "deadlock^deadlock, prevention and the 4 conditions"
-        "bankers^Banker's algorithm (deadlock avoidance)"
-        "MEMORY AND KERNEL^"
-        "memory fifo|lru|opt 3 7 0 1 2^page replacement; also: memory compare / memory belady"
-        "meminfo, monitor [n]^RAM info / live CPU and RAM bars"
-        "kinfo, sysinfo^kernel information / welcome banner"
-        "trace <cmd>^system calls of any program (strace)"
-        "mode-switch^toggle simulated Ring 3 (user) <-> Ring 0 (kernel)"
-        "demo^runs everything above, one part at a time"
+        "SYSTEM & POSIX SHELL"
+        "cd, ls, pwd, history, jobs, kill^Standard Unix commands and job control"
+        "cmd1 | cmd2   cmd > file^Command pipelines, file redirects, logic (&&, ||)"
+        "alias, unalias, export^Shell aliases and environment variables"
+        "cls, help, exit^Clear screen & buffer / help index / exit shell"
+        "theme <name>, user [name]^cyber | retro | matrix | dracula / custom user"
+        "CPU SCHEDULING SIMULATION"
+        "sched fcfs|sjf|prio|rr ...^Simulate scheduling with graphical Gantt chart"
+        "sched compare <p1> <p2>...^Benchmark all 4 algorithms side-by-side"
+        "PROCESS CONTROL BLOCK & LIFECYCLE"
+        "pcb  |  pcb <pid>^Inspect live process descriptor (PCB) from /proc"
+        "pcb sim [quantum] <p1>...^Tick-by-tick animated process state machine"
+        "forkdemo^Fork, exec, wait, pipe, zombie (Z) & signal demo"
+        "CONCURRENCY & DEADLOCK MANAGEMENT"
+        "race^Race condition with and without atomic mutex lock"
+        "deadlock^Coffman conditions, cycle detection & prevention"
+        "bankers^Dijkstra's Banker's algorithm & safe sequence"
+        "VIRTUAL MEMORY & KERNEL TELEMETRY"
+        "memory fifo|lru|opt <f> <pages>^Page replacement simulation & page faults"
+        "memory compare | memory belady^Compare algorithms / prove Belady's anomaly"
+        "monitor [n]^Live dynamic CPU and RAM telemetry dashboard"
+        "kinfo, meminfo^Kernel version, architecture, uptime & memory"
+        "mode-switch^Simulate Ring 3 (User) <-> Ring 0 (Kernel) trap"
+        "trace <command>^Trace program system calls in real-time"
+        "AUTOMATED LAB TOUR"
+        "demo^End-to-end interactive demonstration walkthrough"
     )
-    local r
     echo
+    echo "${PUR}${BLD}  ┌────────────────────────────────────────────────────────────────────────┐${RST}"
+    echo "${CYN}${BLD}  │                   RetroOS Shell - Command Reference                    │${RST}"
+    echo "${PUR}${BLD}  └────────────────────────────────────────────────────────────────────────┘${RST}"
+    local r
     for r in "${rows[@]}"; do
-        if [[ ${r##*^} == "" ]]; then
-            echo; echo "${C_ACC}${r%^}${C_RST}"
+        if [[ $r != *"^"* ]]; then
+            echo
+            echo "  ${CYN}${BLD}▶ $r${RST}"
+            echo "  ${DIM}────────────────────────────────────────────────────────────────────────${RST}"
         else
-            printf "  ${YEL}%-30s${RST} ${DIM}%s${RST}\n" "${r%%^*}" "${r#*^}"
+            local cmd="${r%%^*}" desc="${r#*^}"
+            printf "   ${GRN}${BLD}%-34s${RST} ${WHT}%s${RST}\n" "$cmd" "$desc"
         fi
     done
     echo
