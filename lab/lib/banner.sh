@@ -163,8 +163,29 @@ show_banner() {
     fi
 
     local R=$'\033[0m' B=$'\033[1m'
+    local -a C_CAT=(
+        ""
+        $'\033[38;2;243;139;168m'  # 1: Pink/Red
+        $'\033[38;2;243;139;168m'  # 2
+        $'\033[38;2;250;179;135m'  # 3: Peach/Orange
+        $'\033[38;2;250;179;135m'  # 4
+        $'\033[38;2;249;226;175m'  # 5: Amber/Yellow
+        $'\033[38;2;249;226;175m'  # 6
+        $'\033[38;2;166;227;161m'  # 7: Mint/Green
+        $'\033[38;2;166;227;161m'  # 8
+        $'\033[38;2;148;226;213m'  # 9: Teal
+        $'\033[38;2;148;226;213m'  # 10
+        $'\033[38;2;137;220;235m'  # 11: Sky Blue
+        $'\033[38;2;137;220;235m'  # 12
+        $'\033[38;2;137;180;250m'  # 13: Soft Blue
+        $'\033[38;2;137;180;250m'  # 14
+        $'\033[38;2;203;166;247m'  # 15: Lavender
+        $'\033[38;2;203;166;247m'  # 16
+        $'\033[38;2;192;132;252m'  # 17: Violet/Purple
+    )
     if [[ -n ${NO_COLOR:-} ]]; then
         R=''; B=''; _PUR=''; _COR=''; _AMB=''; _SKY=''; _MNT=''; _DIV=''; _WHT=''; _OR2=''; _CYN=''
+        C_CAT=('' '' '' '' '' '' '' '' '' '' '' '' '' '' '' '' '' '')
     fi
     # How wide is the window?  Narrow window => compact banner (no cat), so nothing wraps and breaks.
     local cols; cols=$(_term_cols)
@@ -175,23 +196,23 @@ show_banner() {
 
     printf '\033[?7l'   # Lock auto-wrap off to guarantee cat ASCII block never breaks
     echo
-    printf '%s%s  %s%s%s%s\n'                      "$_PUR" "${CAT[1]}"  "$_SKY" "$B" "$styled_u" "$R"
-    printf '%s%s  %s──────────────────────────────────%s\n' "$_PUR" "${CAT[2]}"  "$_DIV" "$R"
-    printf '%s%s  %s■%s %sOS%s        %s:%s RetroOS (Linux %s)\n' "$_PUR" "${CAT[3]}" "$_CYN" "$R" "$B" "$R" "$_DIV" "$R" "$(uname -m)"
-    printf '%s%s  %s■%s %sKernel%s    %s:%s %s\n'     "$_PUR" "${CAT[4]}" "$_CYN" "$R" "$B" "$R" "$_DIV" "$R" "$r_kernel"
-    printf '%s%s  %s■%s %sUptime%s    %s:%s %s\n'     "$_PUR" "${CAT[5]}" "$_CYN" "$R" "$B" "$R" "$_DIV" "$R" "$up"
-    printf '%s%s  %s■%s %sShell%s     %s:%s retroos (bash %s)\n' "$_PUR" "${CAT[6]}" "$_CYN" "$R" "$B" "$R" "$_DIV" "$R" "${BASH_VERSION%%(*}"
-    printf '%s%s  %s■%s %sCPU%s       %s:%s %s\n'     "$_PUR" "${CAT[7]}" "$_CYN" "$R" "$B" "$R" "$_DIV" "$R" "$r_cpu"
-    printf '%s%s  %s■%s %sMemory%s    %s:%s %s\n'     "$_PUR" "${CAT[8]}" "$_CYN" "$R" "$B" "$R" "$_DIV" "$R" "$mem"
-    printf '%s%s  %s■%s %sHost%s      %s:%s %s\n'     "$_PUR" "${CAT[9]}" "$_CYN" "$R" "$B" "$R" "$_DIV" "$R" "$host"
-    printf '%s%s  %s■%s %sIP%s        %s:%s %s\n'     "$_PUR" "${CAT[10]}" "$_CYN" "$R" "$B" "$R" "$_DIV" "$R" "$ip"
-    printf '%s%s  %s■%s %sModules%s   %s:%s 37 Interactive Labs [CSE210]\n' "$_PUR" "${CAT[11]}" "$_CYN" "$R" "$B" "$R" "$_DIV" "$R"
-    printf '%s%s\n'                                 "$_PUR" "${CAT[12]}"
-    printf '%s%s  %s%s\n'                           "$_PUR" "${CAT[13]}" "$dots" "$R"
-    printf '%s%s\n'                                 "$_PUR" "${CAT[14]}"
-    printf '%s%s\n'                                 "$_PUR" "${CAT[15]}"
-    printf '%s%s\n'                                 "$_PUR" "${CAT[16]}"
-    printf '%s%s\n'                                 "$_PUR" "${CAT[17]}"
+    printf '%s%s  %s%s%s%s\n'                      "${C_CAT[1]}" "${CAT[1]}"  "$_SKY" "$B" "$styled_u" "$R"
+    printf '%s%s  %s──────────────────────────────────%s\n' "${C_CAT[2]}" "${CAT[2]}"  "$_DIV" "$R"
+    printf '%s%s  %s■%s %sOS%s        %s:%s RetroOS (Linux %s)\n' "${C_CAT[3]}" "${CAT[3]}" "$_CYN" "$R" "$B" "$R" "$_DIV" "$R" "$(uname -m)"
+    printf '%s%s  %s■%s %sKernel%s    %s:%s %s\n'     "${C_CAT[4]}" "${CAT[4]}" "$_CYN" "$R" "$B" "$R" "$_DIV" "$R" "$r_kernel"
+    printf '%s%s  %s■%s %sUptime%s    %s:%s %s\n'     "${C_CAT[5]}" "${CAT[5]}" "$_CYN" "$R" "$B" "$R" "$_DIV" "$R" "$up"
+    printf '%s%s  %s■%s %sShell%s     %s:%s retroos (bash %s)\n' "${C_CAT[6]}" "${CAT[6]}" "$_CYN" "$R" "$B" "$R" "$_DIV" "$R" "${BASH_VERSION%%(*}"
+    printf '%s%s  %s■%s %sCPU%s       %s:%s %s\n'     "${C_CAT[7]}" "${CAT[7]}" "$_CYN" "$R" "$B" "$R" "$_DIV" "$R" "$r_cpu"
+    printf '%s%s  %s■%s %sMemory%s    %s:%s %s\n'     "${C_CAT[8]}" "${CAT[8]}" "$_CYN" "$R" "$B" "$R" "$_DIV" "$R" "$mem"
+    printf '%s%s  %s■%s %sHost%s      %s:%s %s\n'     "${C_CAT[9]}" "${CAT[9]}" "$_CYN" "$R" "$B" "$R" "$_DIV" "$R" "$host"
+    printf '%s%s  %s■%s %sIP%s        %s:%s %s\n'     "${C_CAT[10]}" "${CAT[10]}" "$_CYN" "$R" "$B" "$R" "$_DIV" "$R" "$ip"
+    printf '%s%s  %s■%s %sModules%s   %s:%s 37 Interactive Labs [CSE210]\n' "${C_CAT[11]}" "${CAT[11]}" "$_CYN" "$R" "$B" "$R" "$_DIV" "$R"
+    printf '%s%s\n'                                 "${C_CAT[12]}" "${CAT[12]}"
+    printf '%s%s  %s%s\n'                           "${C_CAT[13]}" "${CAT[13]}" "$dots" "$R"
+    printf '%s%s\n'                                 "${C_CAT[14]}" "${CAT[14]}"
+    printf '%s%s\n'                                 "${C_CAT[15]}" "${CAT[15]}"
+    printf '%s%s\n'                                 "${C_CAT[16]}" "${CAT[16]}"
+    printf '%s%s\n'                                 "${C_CAT[17]}" "${CAT[17]}"
     printf '\033[?7h'   # Re-enable auto-wrap
     echo
     echo "  ${B}$(_rainbow_welcome "$u")${R}"
