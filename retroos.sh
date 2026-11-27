@@ -46,6 +46,7 @@ forkdemo()     { cmd_forkdemo; }
 demo()         { cmd_demo; }
 sysinfo()      { show_banner; }
 mode-switch()  { cmd_modeswitch; }
+cls()          { printf '\033[H\033[2J\033[3J'; clear 2>/dev/null || true; show_banner; }
 
 theme() {
     if [[ -z $1 ]]; then echo "  themes: cyber retro matrix dracula   (now: $THEME)"; return 0; fi
@@ -164,6 +165,10 @@ _on_resize() {
     printf '%s' "$PROMPT"
 }
 trap '_on_resize' WINCH
+
+# Clear screen and entire terminal scrollback buffer so RetroOS starts completely clean
+printf '\033[H\033[2J\033[3J'
+clear 2> /dev/null || true
 
 cd "$HOME" || true
 show_banner
