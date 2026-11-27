@@ -224,7 +224,8 @@ RetroOS_Shell/
 ## Getting Started and Installation
 
 ### Running on Linux or WSL (Recommended)
-Clone the repository and launch directly in your terminal:
+
+**First-Time Setup:**
 ```bash
 # Clone the repository
 git clone https://github.com/SaKin32/RetroOS.git
@@ -232,8 +233,17 @@ cd RetroOS
 
 # Launch the interactive shell
 bash retroos.sh
+```
 
-# Or run an automated end-to-end lab demonstration
+**Subsequent Direct Launch (Anytime you reopen your terminal):**
+```bash
+# Single command direct launch from anywhere:
+cd ~/RetroOS && bash retroos.sh
+```
+
+**Automated Demonstration Tour:**
+```bash
+# Run the automated end-to-end lab demonstration directly
 bash retroos.sh -c "demo"
 ```
 
