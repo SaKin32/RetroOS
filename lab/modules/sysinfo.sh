@@ -88,16 +88,20 @@ _cpu_pct() {
 }
 
 cmd_monitor() {
-    local n=${1:-5} i cpu total avail pct
+    local n=${1:-10} i cpu total avail pct
     if [[ ! $n =~ ^[1-9][0-9]*$ ]] || (( n > 60 )); then echo "  usage: monitor [refreshes 1-60]"; return 1; fi
-    title "RETROOS LIVE MONITOR  (${n} refreshes, 1s tick)"
+    title "RETROOS LIVE MONITOR (${n}s in-place telemetry)"
+    echo "  ${DIM}Live animated dashboard. Updating in-place every 1s...${RST}"
+    echo
+    trap 'echo; return 0' INT
     for (( i = 1; i <= n; i++ )); do
         cpu=$(_cpu_pct)
         total=$(_mem_kb MemTotal); avail=$(_mem_kb MemAvailable)
         pct=$(( (total - avail) * 100 / total ))
-        printf "  [%02d/%02d] CPU %s ${BLD}%3d%%${RST}  |  RAM %s ${BLD}%3d%%${RST}  |  Load: ${CYN}%s${RST}\n" \
+        printf "\r  ${BLD}[%02d/%02d]${RST} CPU: %s ${BLD}%3d%%${RST}  |  RAM: %s ${BLD}%3d%%${RST}  |  Load: ${CYN}%s${RST}   " \
             "$i" "$n" "$(_bar "$cpu")" "$cpu" "$(_bar "$pct")" "$pct" "$(cut -d' ' -f1 /proc/loadavg)"
     done
+    echo; echo
 }
 
 cmd_modeswitch() {
