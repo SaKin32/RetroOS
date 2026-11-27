@@ -9,27 +9,34 @@ YEL=$'\033[38;2;251;191;36m'       # amber   fbbf24  prompts, WAIT
 CYN=$'\033[38;2;34;211;238m'       # cyan    22d3ee  headings
 PUR=$'\033[38;2;192;132;252m'      # purple  c084fc  accents
 DIM=$'\033[38;2;148;163;184m'      # muted   94a3b8  explanations
+WHT=$'\033[38;2;241;245;249m'      # white   f1f5f9  high contrast text
 BLD=$'\033[1m'
 # plain text mode:  NO_COLOR=1 ./main.sh   (use it if colours look like garbage)
-if [[ -n ${NO_COLOR:-} ]]; then RST=''; RED=''; GRN=''; YEL=''; CYN=''; PUR=''; DIM=''; BLD=''; fi
+if [[ -n ${NO_COLOR:-} ]]; then RST=''; RED=''; GRN=''; YEL=''; CYN=''; PUR=''; DIM=''; WHT=''; BLD=''; fi
 
-# title "text"  -> coloured heading
-title() { echo; echo "${PUR}${BLD}=== ${CYN}$1${PUR} ===${RST}"; }
+# title "text"  -> beautifully styled heading card
+title() {
+    echo
+    echo "${PUR}${BLD}  ┌─────────────────────────────────────────────────────────────────┐${RST}"
+    printf "  ${PUR}${BLD}│${RST}  ${CYN}${BLD}%-63s${RST}${PUR}${BLD}│${RST}\n" "$1"
+    echo "${PUR}${BLD}  └─────────────────────────────────────────────────────────────────┘${RST}"
+}
 
-# note "text"   -> dim explanation line
-note() { echo "${DIM}  $1${RST}"; }
+# note "text"   -> clean explanation line
+note() { echo "${DIM}  ℹ $1${RST}"; }
 
 # ask_int "prompt" LOW HIGH  -> keeps asking until a number in range is typed.
 # The answer is returned in the variable $REPLY.
 ask_int() {
     local prompt=$1 lo=$2 hi=$3 v
     while true; do
-        printf '%s' "${YEL}${prompt} [${lo}-${hi}]: ${RST}"
+        printf '%s' "  ${CYN}${prompt}${RST} [${GRN}${lo}-${hi}${RST}] > "
         read -r v || { echo; exit 0; }          # Ctrl+D / end of input -> quit
         if [[ $v =~ ^[0-9]+$ ]] && (( v >= lo && v <= hi )); then
             REPLY=$v
             return
         fi
+        echo "  ${RED}Invalid selection. Please enter a number between $lo and $hi.${RST}"
     done
 }
 
