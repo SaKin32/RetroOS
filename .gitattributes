@@ -1,0 +1,5 @@
+# Ensure Unix line endings (LF) for all shell scripts across all OSes
+* text=auto
+*.sh text eol=lf
+*.bash text eol=lf
+*.md text eol=lf
