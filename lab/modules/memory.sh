@@ -132,7 +132,7 @@ cmd_memory() {
             case $algo in fifo) lbl="FIFO";; lru) lbl="LRU";; opt) lbl="OPT (optimal)";; esac
             title "PAGE REPLACEMENT: $lbl  ($F frames)"
             printf "  %-5s" "page"; for (( a = 1; a <= F; a++ )); do printf " %3s" "f$a"; done; echo "   result"
-            echo "  ------------------------------------------"
+            echo "  ──────────────────────────────────────────"
             _mem_run "$algo" "$F" 0 "$@"
             _mem_summary "$n" ;;
         *)

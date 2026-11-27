@@ -70,7 +70,7 @@ _pcb_sim() {
     printf "  %-5s" "time"
     for (( i = 0; i < n; i++ )); do printf " %-13s" "P$(( i + 1 ))"; done
     echo "  CPU"
-    echo "  ------------------------------------------------------------------"
+    echo "  ──────────────────────────────────────────────────────────────────"
 
     while (( done < n )); do
         for (( i = 0; i < n; i++ )); do           # admit processes that have arrived
@@ -110,12 +110,16 @@ _pcb_sim() {
     done
 
     echo
-    echo "  ${PUR}${BLD}Final PCB table${RST}"
-    printf "  %-6s %-12s %8s %7s %10s %11s %9s\n" "PID" "State" "Arrival" "Burst" "Remaining" "Completion" "Waiting"
-    echo "  -------------------------------------------------------------------"
+    echo "  ${CYN}${BLD}Final Process Control Block (PCB) Summary Table:${RST}"
+    echo "  ┌───────┬────────────┬─────────┬───────┬───────────┬────────────┬─────────┐"
+    printf "  │ ${BLD}%-5s${RST} │ ${BLD}%-10s${RST} │ ${BLD}%-7s${RST} │ ${BLD}%-5s${RST} │ ${BLD}%-9s${RST} │ ${BLD}%-10s${RST} │ ${BLD}%-7s${RST} │\n" \
+        "PID" "State" "Arrival" "Burst" "Remaining" "Completion" "Waiting"
+    echo "  ├───────┼────────────┼─────────┼───────┼───────────┼────────────┼─────────┤"
     for (( i = 0; i < n; i++ )); do
-        printf "  %-6s %-12s %8s %7s %10s %11s %9s\n" "P$(( i + 1 ))" "${st[i]}" "${at[i]}" "${bt[i]}" "${rem[i]}" "${ct[i]}" "${wait[i]}"
+        printf "  │ %-5s │ ${GRN}%-10s${RST} │ %7s │ %5s │ %9s │ %10s │ %7s │\n" \
+            "P$(( i + 1 ))" "${st[i]}" "${at[i]}" "${bt[i]}" "${rem[i]}" "${ct[i]}" "${wait[i]}"
     done
+    echo "  └───────┴────────────┴─────────┴───────┴───────────┴────────────┴─────────┘"
     echo
     note "Waiting = number of ticks a process spent in the Ready state."
     note "A real OS keeps one PCB like this row for every process."

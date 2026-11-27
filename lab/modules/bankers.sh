@@ -40,12 +40,15 @@ _le() {
 _print_state() {
     local i
     echo
-    printf "  %-6s %-16s %-16s %-16s\n" "Proc" "Allocation" "Max" "Need"
-    echo "  ----------------------------------------------------"
+    echo "  ${CYN}${BLD}Banker's Algorithm State Matrix Table:${RST}"
+    echo "  ┌───────┬──────────────────┬──────────────────┬──────────────────┐"
+    printf "  │ ${BLD}%-5s${RST} │ ${BLD}%-16s${RST} │ ${BLD}%-16s${RST} │ ${BLD}%-16s${RST} │\n" "Proc" "Allocation (A B C)" "Max Claim (A B C)" "Need (A B C)"
+    echo "  ├───────┼──────────────────┼──────────────────┼──────────────────┤"
     for (( i = 0; i < N; i++ )); do
-        printf "  %-6s %-16s %-16s %-16s\n" "P$i" "$(_vec ALLOC $((i*M)))" "$(_vec MAXM $((i*M)))" "$(_vec NEED $((i*M)))"
+        printf "  │ ${CYN}%-5s${RST} │ %-16s │ %-16s │ %-16s │\n" "P$i" "$(_vec ALLOC $((i*M)))" "$(_vec MAXM $((i*M)))" "$(_vec NEED $((i*M)))"
     done
-    echo "  Available: ${BLD}$(_vec AVAIL 0)${RST}"
+    echo "  └───────┴──────────────────┴──────────────────┴──────────────────┘"
+    echo "  ${GRN}${BLD}Available Vector (Unallocated Resources):${RST} ${WHT}${BLD}[$(_vec AVAIL 0)]${RST}"
 }
 
 # ---------- the safety algorithm ----------

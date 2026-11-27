@@ -55,10 +55,14 @@ demo_race() {
 
     # ---------- result table ----------
     echo
-    printf "  %-20s %10s %10s %10s %10s\n" "Version" "Result" "Expected" "Lost" "Time(ms)"
-    echo "  ------------------------------------------------------------------"
-    _race_row "No lock (BUG)"  "$got_nolock" "$expected" "$ms_nolock"
-    _race_row "With lock (FIX)" "$got_lock"  "$expected" "$ms_lock"
+    echo "  ${CYN}${BLD}Race Condition Benchmark Results:${RST}"
+    echo "  ┌──────────────────────┬────────────┬────────────┬────────────┬───────────┬──────────────────────┐"
+    printf "  │ ${BLD}%-20s${RST} │ ${BLD}%-10s${RST} │ ${BLD}%-10s${RST} │ ${BLD}%-10s${RST} │ ${BLD}%-9s${RST} │ ${BLD}%-20s${RST} │\n" \
+        "Implementation" "Result" "Expected" "Data Lost" "Time(ms)" "Verification"
+    echo "  ├──────────────────────┼────────────┼────────────┼────────────┼───────────┼──────────────────────┤"
+    _race_row "No Lock (BUG)"   "$got_nolock" "$expected" "$ms_nolock"
+    _race_row "Mutex Lock (FIX)" "$got_lock"   "$expected" "$ms_lock"
+    echo "  └──────────────────────┴────────────┴────────────┴────────────┴───────────┴──────────────────────┘"
     echo
     note "(The write uses mv, an atomic rename, so only the real race is shown.)"
     note "Why: 'add 1' = read -> add -> write. Two processes can read the same"
@@ -72,11 +76,13 @@ demo_race() {
 
 # _race_row name result expected time
 _race_row() {
-    local name=$1 got=$2 exp=$3 ms=$4
-    printf "  %-20s %10s %10s %10s %10s   " "$name" "$got" "$exp" "$(( exp - got ))" "$ms"
+    local name=$1 got=$2 exp=$3 ms=$4 status
     if (( got == exp )); then
-        echo "${GRN}CORRECT${RST}"
+        status="${GRN}${BLD}✔ CORRECT (Exact)${RST} "
     else
-        echo "${RED}WRONG (lost updates)${RST}"
+        status="${RED}${BLD}✘ WRONG (Lost $status)${RST}"
+        status=$(printf "${RED}${BLD}✘ WRONG (Lost %2d)${RST}" "$(( exp - got ))")
     fi
+    printf "  │ %-20s │ %10s │ %10s │ %10s │ %7s ms │ %-20b │\n" \
+        "$name" "$got" "$exp" "$(( exp - got ))" "$ms" "$status"
 }

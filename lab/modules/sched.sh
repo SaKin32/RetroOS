@@ -182,18 +182,24 @@ _sch_report() {
 
     # Process Metrics Table
     echo "  ${CYN}${BLD}Process Execution & Metrics Table:${RST}"
-    printf "  ${BLD}%-9s %9s %8s %10s %12s %12s %10s${RST}\n" "Process" "Arrival" "Burst" "Priority" "Completion" "Turnaround" "Waiting"
-    echo "  ${DIM}----------------------------------------------------------------------------${RST}"
+    echo "  ┌─────────┬─────────┬───────┬──────────┬────────────┬────────────┬─────────┐"
+    printf "  │ ${BLD}%-7s${RST} │ ${BLD}%-7s${RST} │ ${BLD}%-5s${RST} │ ${BLD}%-8s${RST} │ ${BLD}%-10s${RST} │ ${BLD}%-10s${RST} │ ${BLD}%-7s${RST} │\n" \
+        "Process" "Arrival" "Burst" "Priority" "Completion" "Turnaround" "Waiting"
+    echo "  ├─────────┼─────────┼───────┼──────────┼────────────┼────────────┼─────────┤"
     sumt=0; sumw=0
     for (( i = 0; i < SCH_N; i++ )); do
         tat=$(( CT[i] - AT[i] )); wt=$(( tat - BT[i] ))
         sumt=$(( sumt + tat )); sumw=$(( sumw + wt ))
         local pcol=${bg_colors[i % 8]}
-        printf "  ${pcol} %-7s ${RST} %9s %8s %10s %12s %12s %10s\n" "P$(( i + 1 ))" "${AT[i]}" "${BT[i]}" "${PR[i]}" "${CT[i]}" "$tat" "$wt"
+        printf "  │ ${pcol} %-5s ${RST} │ %7s │ %5s │ %8s │ %10s │ %10s │ %7s │\n" \
+            "P$(( i + 1 ))" "${AT[i]}" "${BT[i]}" "${PR[i]}" "${CT[i]}" "$tat" "$wt"
     done
-    echo "  ${DIM}----------------------------------------------------------------------------${RST}"
-    echo "  Average Turnaround Time : ${GRN}${BLD}${SCH_AVG_T}${RST}"
-    echo "  Average Waiting Time    : ${YEL}${BLD}${SCH_AVG_W}${RST}"
+    echo "  └─────────┴─────────┴───────┴──────────┴────────────┴────────────┴─────────┘"
+    echo
+    echo "  ┌────────────────────────────────────────────────────────┐"
+    printf "  │  Average Turnaround Time :  ${GRN}${BLD}%-6s ms${RST}                       │\n" "$SCH_AVG_T"
+    printf "  │  Average Waiting Time    :  ${YEL}${BLD}%-6s ms${RST}                       │\n" "$SCH_AVG_W"
+    echo "  └────────────────────────────────────────────────────────┘"
     echo
 }
 
