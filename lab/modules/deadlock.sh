@@ -96,46 +96,50 @@ _dl_run() {
 }
 
 demo_deadlock() {
-    title "DEADLOCK"
+    title "DEADLOCK SIMULATION & PREVENTION (CSE210)"
     local choice
     while true; do
         echo
-        echo "  1) Cause a deadlock    (T1: A then B,  T2: B then A)"
-        echo "  2) Fix: lock ORDERING  (both take A then B)"
-        echo "  3) Fix: back-off       (if second lock busy, release first and retry)"
-        echo "  4) Show the 4 Coffman conditions"
-        echo "  0) Back"
-        ask_int "Choose" 0 4; choice=$REPLY
+        echo "  ${PUR}┌──${CYN} Select Deadlock Scenario ${PUR}────────────────────────────┐${RST}"
+        echo "  ${PUR}│${RST}  ${GRN}1)${RST} ${BLD}Simulate Deadlock${RST}   (T1: A->B, T2: B->A Circular Wait) ${PUR}│${RST}"
+        echo "  ${PUR}│${RST}  ${GRN}2)${RST} ${BLD}Fix: Lock Ordering${RST}  (Global order: A then B)           ${PUR}│${RST}"
+        echo "  ${PUR}│${RST}  ${GRN}3)${RST} ${BLD}Fix: Back-off/Retry${RST} (Release lock and retry)           ${PUR}│${RST}"
+        echo "  ${PUR}│${RST}  ${GRN}4)${RST} ${BLD}Coffman Conditions${RST}  (4 Necessary Conditions)           ${PUR}│${RST}"
+        echo "  ${PUR}│${RST}  ${RED}0)${RST} Return to Shell                                       ${PUR}│${RST}"
+        echo "  ${PUR}└──────────────────────────────────────────────────────────┘${RST}"
+        ask_int "Select Option" 0 4; choice=$REPLY
 
         case $choice in
             1)  echo
-                note "T1 holds A and wants B.  T2 holds B and wants A.  Neither can move."
-                note "(Each waits only 3 s so the demo ends instead of hanging forever.)"
+                note "T1 holds A and requests B; T2 holds B and requests A."
+                note "(3-second timeout safety limit applied to end simulation cleanly)"
                 echo
                 _dl_run deadlock
                 echo
-                echo "  ${RED}Wait-for graph:  T1 --wants--> B --held by--> T2 --wants--> A --held by--> T1${RST}"
-                note "A cycle in the wait-for graph means deadlock." ;;
+                echo "  ${RED}${BLD}Wait-for Graph Cycle Detected:${RST}"
+                echo "  ${RED}  [T1] ──wants──> (Lock B) ──held by──> [T2] ──wants──> (Lock A) ──held by──> [T1]${RST}"
+                note "A directed cycle in the resource allocation graph confirms Deadlock." ;;
             2)  echo
-                note "Both workers take the locks in the SAME global order: A first, then B."
+                note "Both workers acquire locks in identical global hierarchy (A -> B)."
                 echo
                 _dl_run order
-                note "Deadlock PREVENTION: breaks the 'circular wait' condition." ;;
+                echo "  ${GRN}${BLD}✔ Deadlock Prevented: Circular Wait condition eliminated.${RST}" ;;
             3)  echo
-                note "lock_try never waits. If B is busy, the worker releases A and tries later."
+                note "Non-blocking trylock: if secondary lock is busy, release primary lock and back-off."
                 echo
                 _dl_run backoff
-                note "Breaks 'hold and wait': a worker never waits while holding a lock." ;;
+                echo "  ${GRN}${BLD}✔ Deadlock Prevented: Hold & Wait condition broken.${RST}" ;;
             4)  echo
-                echo "  Deadlock needs ALL four at once:"
-                echo "   1. Mutual exclusion  - a lock is held by one process at a time"
-                echo "   2. Hold and wait     - a process holds one lock while asking for another"
-                echo "   3. No preemption     - a lock cannot be taken away by force"
-                echo "   4. Circular wait     - T1 waits for T2 and T2 waits for T1"
-                echo "  Break any one of them and deadlock is impossible."
-                echo "   - Lock ordering    breaks #4"
-                echo "   - Back-off/trylock breaks #2"
-                echo "   - Banker's (command: bankers) avoids unsafe states before they happen" ;;
+                echo "  ${CYN}${BLD}Coffman's Four Necessary Conditions for Deadlock:${RST}"
+                echo "   ${RED}[1] Mutual Exclusion${RST} : Only one process can hold a resource at a time."
+                echo "   ${RED}[2] Hold and Wait   ${RST} : A process holds resources while requesting new ones."
+                echo "   ${RED}[3] No Preemption   ${RST} : Resources cannot be forcibly seized from processes."
+                echo "   ${RED}[4] Circular Wait   ${RST} : Circular chain of processes each waiting for the next."
+                echo
+                echo "  ${GRN}${BLD}Prevention Strategies (Breaking Conditions):${RST}"
+                echo "   ${GRN}✔ Break #4 (Circular Wait)${RST}   : Global Lock Ordering (Option 2)"
+                echo "   ${GRN}✔ Break #2 (Hold & Wait)  ${RST}   : Non-blocking Back-off / trylock (Option 3)"
+                echo "   ${GRN}✔ Deadlock Avoidance      ${RST}   : Dijkstra's Banker's Algorithm (Run: bankers)" ;;
             0)  return ;;
         esac
     done
