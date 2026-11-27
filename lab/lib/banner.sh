@@ -65,6 +65,45 @@ _code_font() {
 # _styled_user -> wrapper for code font
 _styled_user() { _code_font "$@"; }
 
+# _rainbow_welcome -> multicolor mixed code font welcome text
+_rainbow_welcome() {
+    local raw="WELCOME_BACK : ${1:-retro}"
+    local out="" ch code_ch i idx=0
+    local -a colors=(
+        $'\033[38;2;243;139;168m'  # red/pink
+        $'\033[38;2;250;179;135m'  # peach/orange
+        $'\033[38;2;249;226;175m'  # yellow
+        $'\033[38;2;166;227;161m'  # green
+        $'\033[38;2;148;226;213m'  # teal
+        $'\033[38;2;137;220;235m'  # cyan
+        $'\033[38;2;137;180;250m'  # blue
+        $'\033[38;2;203;166;247m'  # lavender
+    )
+    local n=${#colors[@]}
+    local -A map=(
+        [a]='𝚊' [b]='𝚋' [c]='𝚌' [d]='𝚍' [e]='𝚎' [f]='𝚏' [g]='𝚐' [h]='𝚑' [i]='𝚒'
+        [j]='𝚓' [k]='𝚔' [l]='𝚕' [m]='𝚖' [n]='𝚗' [o]='𝚘' [p]='𝚙' [q]='𝚚' [r]='𝚛'
+        [s]='𝚜' [t]='𝚝' [u]='𝚞' [v]='𝚟' [w]='𝚠' [x]='𝚡' [y]='𝚢' [z]='𝚣'
+        [A]='𝙰' [B]='𝙱' [C]='𝙲' [D]='𝙳' [E]='𝙴' [F]='𝙵' [G]='𝙶' [H]='𝙷' [I]='𝙸'
+        [J]='𝙹' [K]='𝙺' [L]='𝙻' [M]='𝙼' [N]='𝙽' [O]='𝙾' [P]='𝙿' [Q]='𝚀' [R]='𝚁'
+        [S]='𝚂' [T]='𝚃' [U]='𝚄' [V]='𝚅' [W]='𝚆' [X]='𝚇' [Y]='𝚈' [Z]='𝚉'
+        [0]='𝟶' [1]='𝟷' [2]='𝟸' [3]='𝟹' [4]='𝟺' [5]='𝟻' [6]='𝟼' [7]='𝟽' [8]='𝟾' [9]='𝟿'
+        [_]='_' [:]=':'
+    )
+    for (( i = 0; i < ${#raw}; i++ )); do
+        ch="${raw:i:1}"
+        if [[ "$ch" == " " ]]; then
+            out+=" "
+        else
+            code_ch="${map[$ch]:-$ch}"
+            out+="${colors[idx % n]}${code_ch}"
+            (( idx++ ))
+        fi
+    done
+    out+=$'\033[0m'
+    echo "$out"
+}
+
 # _banner_compact : small-window version, no cat; every line is short enough not to wrap
 _banner_compact() {
     local u=$1 kernel=$2 up=$3 host=$4 cores=$5 mem=$6 ip=$7 line=$8 R=$9 B=${10}
@@ -82,7 +121,7 @@ _banner_compact() {
     printf "  ${_CYN}■${R} %sIP%s        %s:%s %s\n" "$B" "$R" "$_DIV" "$R" "$ip"
     printf "  ${_CYN}■${R} %sModules%s   %s:%s 37 Interactive Simulators [CSE210]\n" "$B" "$R" "$_DIV" "$R"
     echo "  ${_DIV}${line}${R}"
-    echo "  ${_PUR}${B}𝚆𝙴𝙻𝙲𝙾𝙼𝙴_𝙱𝙰𝙲𝙺 : ${styled_u}${R}"
+    echo "  ${B}$(_rainbow_welcome "$u")${R}"
     echo "  ${_CYN}◆${R} $(date '+%A, %B %d %Y  %H:%M')"
     echo "  ${_AMB}◆${R} Programs must be written for people to read, not machines to execute."
     echo
@@ -144,7 +183,7 @@ show_banner() {
     printf '%s%s\n'                                 "$_PUR" "${CAT[16]}"
     printf '%s%s\n'                                 "$_PUR" "${CAT[17]}"
     echo
-    echo "${_PUR}${B}  𝚆𝙴𝙻𝙲𝙾𝙼𝙴_𝙱𝙰𝙲𝙺 : ${styled_u}${R}"
+    echo "  ${B}$(_rainbow_welcome "$u")${R}"
     echo "  ${_CYN}◆${R} $(date '+%A, %B %d %Y  %H:%M')"
     echo "  ${_AMB}◆${R} Programs must be written for people to read, not machines to execute."
     echo
