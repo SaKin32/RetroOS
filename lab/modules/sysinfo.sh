@@ -9,11 +9,14 @@
 
 KERNEL_MODE=0
 
-# _bar PERCENT -> a 20 character bar like [#####---------------]
+# _bar PERCENT -> a 20 character bar with gradient colors
 _bar() {
     local pct=$1 i out="" full=$(( $1 * 20 / 100 ))
+    local col=$GRN
+    (( pct > 50 )) && col=$YEL
+    (( pct > 80 )) && col=$RED
     for (( i = 0; i < 20; i++ )); do
-        if (( i < full )); then out+="#"; else out+="-"; fi
+        if (( i < full )); then out+="${col}#${RST}"; else out+="${DIM}-${RST}"; fi
     done
     echo "[$out]"
 }
@@ -87,13 +90,13 @@ _cpu_pct() {
 cmd_monitor() {
     local n=${1:-5} i cpu total avail pct
     if [[ ! $n =~ ^[1-9][0-9]*$ ]] || (( n > 60 )); then echo "  usage: monitor [refreshes 1-60]"; return 1; fi
-    title "RETROOS MONITOR  (${n} refreshes, 1 second each)"
+    title "RETROOS LIVE MONITOR  (${n} refreshes, 1s tick)"
     for (( i = 1; i <= n; i++ )); do
         cpu=$(_cpu_pct)
         total=$(_mem_kb MemTotal); avail=$(_mem_kb MemAvailable)
         pct=$(( (total - avail) * 100 / total ))
-        printf "  CPU ${CYN}%s${RST} %3d%%   RAM ${GRN}%s${RST} %3d%%   load %s\n" \
-            "$(_bar "$cpu")" "$cpu" "$(_bar "$pct")" "$pct" "$(cut -d' ' -f1 /proc/loadavg)"
+        printf "  [%02d/%02d] CPU %s ${BLD}%3d%%${RST}  |  RAM %s ${BLD}%3d%%${RST}  |  Load: ${CYN}%s${RST}\n" \
+            "$i" "$n" "$(_bar "$cpu")" "$cpu" "$(_bar "$pct")" "$pct" "$(cut -d' ' -f1 /proc/loadavg)"
     done
 }
 
