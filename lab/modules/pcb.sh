@@ -23,23 +23,23 @@ _pcb_real() {
     # in /proc/PID/stat the name is in (...) and may hold spaces, so cut it off first
     read -r prio nice < <(sed 's/^.*) //' "$f/stat" | awk '{print $16, $17}')
     nfd=$(ls "$f/fd" 2> /dev/null | wc -l)
-    title "PCB of process $pid  (read from /proc/$pid)"
-    printf "  ${YEL}%-26s${RST} %s\n" \
-        "Process ID (PID)"        "$pid" \
-        "Parent PID (PPID)"       "$ppid" \
-        "Program name"            "$name" \
-        "Process state"           "$state" \
-        "Owner (UID)"             "$uid" \
-        "Priority / nice"         "$prio / $nice" \
-        "Threads"                 "$thr" \
-        "Virtual memory"          "${vsz:--}" \
-        "Resident memory (RAM)"   "${rss:--}" \
-        "Open files (fd table)"   "$nfd" \
-        "Context switches (vol)"  "$vol" \
-        "Context switches (forced)" "$nonvol"
+    title "PROCESS CONTROL BLOCK [PID: $pid] (read from /proc/$pid)"
+    echo "  ┌─────────────────────────────────┬───────────────────────────────┐"
+    printf "  │ ${CYN}%-31s${RST} │ ${WHT}%-29s${RST} │\n" "Process ID (PID)" "$pid"
+    printf "  │ ${CYN}%-31s${RST} │ ${WHT}%-29s${RST} │\n" "Parent PID (PPID)" "$ppid"
+    printf "  │ ${CYN}%-31s${RST} │ ${GRN}${BLD}%-29s${RST} │\n" "Program Name" "$name"
+    printf "  │ ${CYN}%-31s${RST} │ ${YEL}${BLD}%-29s${RST} │\n" "Process State" "$state"
+    printf "  │ ${CYN}%-31s${RST} │ ${WHT}%-29s${RST} │\n" "Owner (UID)" "$uid"
+    printf "  │ ${CYN}%-31s${RST} │ ${WHT}%-29s${RST} │\n" "Priority / Nice" "$prio / $nice"
+    printf "  │ ${CYN}%-31s${RST} │ ${WHT}%-29s${RST} │\n" "Active Threads" "$thr"
+    printf "  │ ${CYN}%-31s${RST} │ ${PUR}%-29s${RST} │\n" "Virtual Memory (VmSize)" "${vsz:--}"
+    printf "  │ ${CYN}%-31s${RST} │ ${PUR}%-29s${RST} │\n" "Resident Memory (RAM)" "${rss:--}"
+    printf "  │ ${CYN}%-31s${RST} │ ${WHT}%-29s${RST} │\n" "Open Files (FD Count)" "$nfd"
+    printf "  │ ${CYN}%-31s${RST} │ ${WHT}%-29s${RST} │\n" "Context Switches (Voluntary)" "$vol"
+    printf "  │ ${CYN}%-31s${RST} │ ${WHT}%-29s${RST} │\n" "Context Switches (Forced)" "$nonvol"
+    echo "  └─────────────────────────────────┴───────────────────────────────┘"
     echo
-    note "This is what the kernel stores in its process descriptor (task_struct):"
-    note "PID, state, parent, owner, scheduling info, memory info, open files."
+    note "Live process descriptor data read directly from Linux task_struct."
 }
 
 # ---------- simulated PCB / state table ----------
