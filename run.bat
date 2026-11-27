@@ -1,11 +1,15 @@
 @echo off
 setlocal
-if exist "%ProgramFiles%\Git\bin\bash.exe" (
-    "%ProgramFiles%\Git\bin\bash.exe" "%~dp0retroos.sh"
-) else if exist "%LOCALAPPDATA%\Programs\Git\bin\bash.exe" (
-    "%LOCALAPPDATA%\Programs\Git\bin\bash.exe" "%~dp0retroos.sh"
+cd /d "%~dp0"
+
+if exist "%ProgramFiles%\Git\git-bash.exe" (
+    start "RetroOS" "%ProgramFiles%\Git\git-bash.exe" --cd="%~dp0." -c "bash retroos.sh"
+) else if exist "%LOCALAPPDATA%\Programs\Git\git-bash.exe" (
+    start "RetroOS" "%LOCALAPPDATA%\Programs\Git\git-bash.exe" --cd="%~dp0." -c "bash retroos.sh"
+) else if exist "%ProgramFiles%\Git\bin\bash.exe" (
+    start "RetroOS" "%ProgramFiles%\Git\bin\bash.exe" -c "cd \"%~dp0\" && bash retroos.sh"
 ) else (
     echo [ERROR] Git Bash was not found in default locations.
-    echo Please run this in WSL (Windows Subsystem for Linux) or install Git Bash.
+    echo Please install Git for Windows or run in WSL.
     pause
 )

@@ -11,6 +11,12 @@ elif command -v konsole >/dev/null 2>&1; then
 elif command -v xfce4-terminal >/dev/null 2>&1; then
     exec xfce4-terminal -x bash -c "cd \"$DIR\" && bash retroos.sh"
 
+elif [ -f "/c/Program Files/Git/git-bash.exe" ]; then
+    "/c/Program Files/Git/git-bash.exe" --cd="$DIR" -c "bash retroos.sh" &
+
+elif command -v cmd.exe >/dev/null 2>&1; then
+    cmd.exe /c start "RetroOS" bash -c "cd '$DIR' && bash retroos.sh"
+
 else
     echo "Starting RetroOS in current terminal..."
     cd "$DIR"
