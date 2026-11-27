@@ -89,10 +89,9 @@ _sch_rr() {
     done
 }
 
-# _sch_report -> Gantt chart + table + averages
+# _sch_report -> Colorful Graphical Gantt Chart + styled table + averages
 _sch_report() {
     local i k sumt=0 sumw=0 tat wt
-    local -a pal=("$CYN" "$GRN" "$YEL" "$RED")
     for (( i = 0; i < SCH_N; i++ )); do           # averages (also used by 'sched compare')
         tat=$(( CT[i] - AT[i] )); wt=$(( tat - BT[i] ))
         sumt=$(( sumt + tat )); sumw=$(( sumw + wt ))
@@ -100,28 +99,101 @@ _sch_report() {
     SCH_AVG_T=$(awk -v s=$sumt -v n=$SCH_N 'BEGIN{printf "%.2f", s/n}')
     SCH_AVG_W=$(awk -v s=$sumw -v n=$SCH_N 'BEGIN{printf "%.2f", s/n}')
     (( SCH_QUIET )) && return 0
-    sumt=0; sumw=0
-    echo
-    echo -n "  "
-    for (( k = 0; k < ${#SEG_NAME[@]}; k++ )); do
-        if [[ ${SEG_NAME[k]} == idle ]]; then
-            echo -n "${DIM}[idle ${SEG_S[k]}-${SEG_E[k]}]${RST} "
+
+    # 1. Vibrant Process Background Colors (ANSI 256/TrueColor)
+    local -a bg_colors=(
+        $'\033[44;1;97m'   # P1: Blue
+        $'\033[42;1;30m'   # P2: Green
+        $'\033[45;1;97m'   # P3: Magenta
+        $'\033[43;1;30m'   # P4: Yellow/Amber
+        $'\033[46;1;30m'   # P5: Cyan
+        $'\033[41;1;97m'   # P6: Red
+        $'\033[105;1;97m'  # P7: Bright Magenta
+        $'\033[104;1;97m'  # P8: Bright Blue
+    )
+    local bg_idle=$'\033[100;1;97m'  # Idle: Dark Gray
+
+    local num_segs=${#SEG_NAME[@]}
+    local -a widths=()
+    local seg_w d name s e
+
+    # Calculate optimal segment widths
+    for (( k = 0; k < num_segs; k++ )); do
+        s=${SEG_S[k]}; e=${SEG_E[k]}; d=$(( e - s ))
+        if (( num_segs <= 6 )); then
+            seg_w=$(( d * 2 ))
+            (( seg_w < 6 )) && seg_w=6
+            (( seg_w > 16 )) && seg_w=16
         else
-            i=${SEG_NAME[k]#P}
-            echo -n "${pal[(i - 1) % 4]}[${SEG_NAME[k]} ${SEG_S[k]}-${SEG_E[k]}]${RST} "
+            seg_w=$(( d + 3 ))
+            (( seg_w < 5 )) && seg_w=5
+            (( seg_w > 10 )) && seg_w=10
         fi
+        widths[k]=$seg_w
     done
-    echo; echo
-    printf "  %-8s %8s %8s %8s %12s %12s %10s\n" "Process" "Arrival" "Burst" "Priority" "Completion" "Turnaround" "Waiting"
-    echo "  ----------------------------------------------------------------------------"
+
+    echo
+    echo "  ${CYN}${BLD}Gantt Chart Timeline (Visualized):${RST}"
+    echo
+
+    # Top border
+    echo -n "  ┌"
+    for (( k = 0; k < num_segs; k++ )); do
+        local w=${widths[k]}
+        printf '─%.0s' $(seq 1 $w)
+        if (( k < num_segs - 1 )); then echo -n "┬"; else echo "┐"; fi
+    done
+
+    # Middle bar with colored background blocks
+    echo -n "  │"
+    for (( k = 0; k < num_segs; k++ )); do
+        local w=${widths[k]}
+        name=${SEG_NAME[k]}
+        local col=$bg_idle
+        if [[ $name != idle ]]; then
+            local p_idx=${name#P}
+            col=${bg_colors[(p_idx - 1) % 8]}
+        fi
+        local pad_l=$(( (w - ${#name}) / 2 ))
+        local pad_r=$(( w - ${#name} - pad_l ))
+        printf "${col}%*s%s%*s${RST}│" $pad_l "" "$name" $pad_r ""
+    done
+    echo
+
+    # Bottom border
+    echo -n "  └"
+    for (( k = 0; k < num_segs; k++ )); do
+        local w=${widths[k]}
+        printf '─%.0s' $(seq 1 $w)
+        if (( k < num_segs - 1 )); then echo -n "┴"; else echo "┘"; fi
+    done
+
+    # Timeline numbers line
+    local time_line="  ${SEG_S[0]}"
+    for (( k = 0; k < num_segs; k++ )); do
+        local end_val="${SEG_E[k]}"
+        local w=${widths[k]}
+        local spaces=$(( w + 1 - ${#end_val} ))
+        (( spaces < 1 )) && spaces=1
+        time_line+=$(printf "%*s%s" $spaces "" "$end_val")
+    done
+    echo "${YEL}${BLD}${time_line}${RST}"
+    echo
+
+    # Process Metrics Table
+    echo "  ${CYN}${BLD}Process Execution & Metrics Table:${RST}"
+    printf "  ${BLD}%-9s %9s %8s %10s %12s %12s %10s${RST}\n" "Process" "Arrival" "Burst" "Priority" "Completion" "Turnaround" "Waiting"
+    echo "  ${DIM}----------------------------------------------------------------------------${RST}"
+    sumt=0; sumw=0
     for (( i = 0; i < SCH_N; i++ )); do
         tat=$(( CT[i] - AT[i] )); wt=$(( tat - BT[i] ))
         sumt=$(( sumt + tat )); sumw=$(( sumw + wt ))
-        printf "  %-8s %8s %8s %8s %12s %12s %10s\n" "P$(( i + 1 ))" "${AT[i]}" "${BT[i]}" "${PR[i]}" "${CT[i]}" "$tat" "$wt"
+        local pcol=${bg_colors[i % 8]}
+        printf "  ${pcol} %-7s ${RST} %9s %8s %10s %12s %12s %10s\n" "P$(( i + 1 ))" "${AT[i]}" "${BT[i]}" "${PR[i]}" "${CT[i]}" "$tat" "$wt"
     done
-    echo
-    echo "  Average turnaround time: ${BLD}${SCH_AVG_T}${RST}"
-    echo "  Average waiting time:    ${BLD}${SCH_AVG_W}${RST}"
+    echo "  ${DIM}----------------------------------------------------------------------------${RST}"
+    echo "  Average Turnaround Time : ${GRN}${BLD}${SCH_AVG_T}${RST}"
+    echo "  Average Waiting Time    : ${YEL}${BLD}${SCH_AVG_W}${RST}"
     echo
 }
 
