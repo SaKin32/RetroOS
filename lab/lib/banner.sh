@@ -65,14 +65,10 @@ _code_font() {
 # _styled_user -> wrapper for code font
 _styled_user() { _code_font "$@"; }
 
-# _rainbow_welcome -> multicolor mixed code font welcome text (spaced & prominent)
+# _rainbow_welcome -> multicolor mixed code font welcome text
 _rainbow_welcome() {
-    local u="${1:-retro}" raw="W E L C O M E   B A C K   :   " i
-    for (( i = 0; i < ${#u}; i++ )); do
-        raw+="${u:i:1} "
-    done
-    raw=${raw% }
-    local out="" ch code_ch idx=0
+    local raw="WELCOME BACK : ${1:-retro}"
+    local out="" ch code_ch i idx=0
     local -a colors=(
         $'\033[38;2;243;139;168m'  # red/pink
         $'\033[38;2;250;179;135m'  # peach/orange
