@@ -10,13 +10,13 @@
 
 **A Custom Unix Shell & Interactive Operating Systems Laboratory**
 
-*POSIX Core · CPU Scheduling · Concurrency & Deadlocks · Virtual Memory Demand Paging*
+*POSIX Core · CPU Scheduling · Deadlock Management & Banker's Algorithm · Virtual Memory Demand Paging*
 
 </div>
 
 ---
 
-> RetroOS is an interactive Unix shell and operating systems simulation laboratory developed entirely in GNU Bash (4.0+). It bridges standard POSIX shell utilities (REPL, command pipelines, I/O redirection, job control) with comprehensive demonstrations of foundational Operating System concepts—including CPU Scheduling, Process Control Blocks (PCB), Concurrency and Deadlocks, Dijkstra's Banker's Algorithm, and Virtual Memory Management.
+> RetroOS is an interactive Unix shell and operating systems simulation laboratory developed entirely in GNU Bash (4.0+). It bridges standard POSIX shell utilities (REPL, command pipelines, I/O redirection, job control) with comprehensive demonstrations of foundational Operating System concepts—including CPU Scheduling, Process Control Blocks (PCB), Deadlock Detection and Prevention, Dijkstra's Banker's Algorithm, and Virtual Memory Management.
 
 ---
 
@@ -27,7 +27,7 @@
 | **GNU Bash (4.0+)** | Primary Language | Interactive shell REPL, syntax parser, and entire algorithm implementation |
 | **Linux `/proc` VFS** | Kernel Interface | Reading live process descriptors (`task_struct`), RAM, CPU stats, and uptime |
 | **POSIX Primitives** | System Calls | `fork()`, `exec()`, `wait()`, anonymous pipes, and signal handling (`SIGINT`, `SIGTERM`) |
-| **Atomic File Locks** | Synchronization | Mutual exclusion primitive using `set -o noclobber` for race and deadlock demos |
+| **Atomic File Locks** | Synchronization | Mutual exclusion primitive using `set -o noclobber` for deadlock simulation |
 | **`strace`** | Kernel Telemetry | Tracing live program system calls (`execve`, `openat`, `clone3`, `exit_group`) |
 | **ANSI 24-bit TrueColor** | Terminal Engine | Custom color themes (`cyber`, `dracula`, `retro`, `matrix`) and Gantt chart graphics |
 | **WSL2 / Git Bash** | Host Environment | Windows cross-platform execution compatibility layer |
@@ -41,10 +41,9 @@
 4. [Core Operating System Modules](#core-operating-system-modules)
    - [1. CPU Scheduling and Gantt Chart](#1-cpu-scheduling-and-gantt-chart-schedsh)
    - [2. Process Control Block and Process Lifecycle](#2-process-control-block-and-process-lifecycle-pcbsh--forkdemosh)
-   - [3. Concurrency and Race Conditions](#3-concurrency-and-race-conditions-racesh)
-   - [4. Deadlock Detection, Prevention and Avoidance](#4-deadlock-detection-prevention-and-avoidance-deadlocksh--bankerssh)
-   - [5. Virtual Memory and Page Replacement](#5-virtual-memory-and-page-replacement-memorysh)
-   - [6. Kernel Interface and Hardware Monitoring](#6-kernel-interface-and-hardware-monitoring-sysinfosh)
+   - [3. Deadlock Detection, Prevention and Avoidance](#3-deadlock-detection-prevention-and-avoidance-deadlocksh--bankerssh)
+   - [4. Virtual Memory and Page Replacement](#4-virtual-memory-and-page-replacement-memorysh)
+   - [5. Kernel Interface and Hardware Monitoring](#5-kernel-interface-and-hardware-monitoring-sysinfosh)
 5. [Shell Environment Features](#shell-environment-features)
 6. [Directory Structure](#directory-structure)
 7. [Getting Started and Installation](#getting-started-and-installation)
@@ -60,7 +59,6 @@
 The objective of this project is to provide a rigorous, interactive bridge between operating system theory and execution behavior. Designed for CSE210 (Operating Systems), RetroOS provides empirical verification for:
 
 - Process State Transitions and Schedulers: Dynamic queue simulation of New, Ready, Running, and Terminated states alongside visual Gantt charts.
-- Mutual Exclusion and Critical Sections: Empirical observation of non-deterministic lost updates in shared files and verification of atomic mutual exclusion.
 - Deadlock Theory: Practical demonstration of the four Coffman conditions, cycle detection in Wait-For Graphs, and proactive avoidance using Dijkstra's Banker's Algorithm.
 - Demand Paging and Memory Hierarchy: Simulation of FIFO, LRU, and Optimal page replacement with formal proof of Belady's Anomaly.
 - Kernel Telemetry: Direct inspection of the Linux `/proc` pseudo-filesystem to extract live task structures (`task_struct`), scheduling parameters, and hardware statistics.
@@ -85,11 +83,10 @@ The objective of this project is to provide a rigorous, interactive bridge betwe
 | * sched.sh   (CPU)    |                       | * ui.sh    (Colors,   |
 | * pcb.sh     (States) |                       |             Locks)    |
 | * memory.sh  (Paging) |                       | * theme.sh (Themes &  |
-| * race.sh    (Mutex)  |                       |             Prompt)   |
-| * deadlock.sh(Coffman)|                       | * banner.sh(Sysinfo   |
-| * bankers.sh (Safety) |                       |             Banner)   |
-| * sysinfo.sh (Kernel) |                       +-----------------------+
-| * forkdemo.sh(Fork)   |
+| * deadlock.sh(Coffman)|                       |             Prompt)   |
+| * bankers.sh (Safety) |                       | * banner.sh(Sysinfo   |
+| * sysinfo.sh (Kernel) |                       |             Banner)   |
+| * forkdemo.sh(Fork)   |                       +-----------------------+
 +-----------------------+
 ```
 
@@ -98,7 +95,7 @@ The objective of this project is to provide a rigorous, interactive bridge betwe
 ## Core Operating System Modules
 
 ### 1. CPU Scheduling and Gantt Chart (`sched.sh`)
-Implements non-preemptive and preemptive scheduling algorithms with interactive Gantt charts, computing Turnaround Time (TAT = Completion Time - Arrival Time) and Waiting Time (WT = Turnaround Time - Burst Time).
+Implements non-preemptive and preemptive scheduling algorithms with interactive graphical Gantt charts, computing Turnaround Time (TAT = Completion Time - Arrival Time) and Waiting Time (WT = Turnaround Time - Burst Time).
 
 - Supported Algorithms:
   - FCFS (First-Come, First-Served): Non-preemptive execution scheduled strictly by arrival timestamp.
@@ -135,16 +132,7 @@ sched compare 0:5:2 1:3:1 2:8:3    # Side-by-side comparative analysis
 
 ---
 
-### 3. Concurrency and Race Conditions (`race.sh`)
-Examines the Critical Section Problem when concurrent worker processes manipulate shared state without synchronization.
-
-- Unsynchronized Execution (Bug): Multiple asynchronous subshells execute read-modify-write sequences on a shared counter file, resulting in lost updates due to race conditions.
-- Synchronized Execution (Fix): Implements mutual exclusion through atomic lock files using `set -o noclobber`, serializing the critical section without external dependencies.
-- Output: Displays a performance table contrasting lost updates against 100% correct synchronized execution alongside synchronization time overhead.
-
----
-
-### 4. Deadlock Detection, Prevention and Avoidance (`deadlock.sh` & `bankers.sh`)
+### 3. Deadlock Detection, Prevention and Avoidance (`deadlock.sh` & `bankers.sh`)
 - Deadlock Simulation (`deadlock`):
   - Spawns concurrent threads requesting resources in inverted order (T1 takes A then B vs T2 takes B then A).
   - Visualizes the circular wait condition on a Wait-For Graph (WFG): T1 -> Resource B -> T2 -> Resource A -> T1.
@@ -159,7 +147,7 @@ Examines the Critical Section Problem when concurrent worker processes manipulat
 
 ---
 
-### 5. Virtual Memory and Page Replacement (`memory.sh`)
+### 4. Virtual Memory and Page Replacement (`memory.sh`)
 Simulates page frame allocation and demand paging mechanisms when physical memory frames are saturated:
 
 - Algorithms Implemented:
@@ -171,7 +159,7 @@ Simulates page frame allocation and demand paging mechanisms when physical memor
 
 ---
 
-### 6. Kernel Interface and Hardware Monitoring (`sysinfo.sh`)
+### 5. Kernel Interface and Hardware Monitoring (`sysinfo.sh`)
 - Simulated Dual-Mode Switching (`mode-switch`):
   Toggles simulated privilege levels between Ring 3 (User Mode, prompt `>`) and Ring 0 (Kernel Mode, prompt `#`) to illustrate system call traps and privilege separation.
 - Hardware and Memory Telemetry (`meminfo`, `kinfo`, `monitor`):
@@ -198,10 +186,6 @@ RetroOS_Shell/
 ├── retroos.sh             # Main shell entry point and interactive REPL loop
 ├── run.bat                # Windows 1-click launcher (Git Bash auto-detect)
 ├── README.md              # Project documentation and academic lab manual
-├── scripts/               # Auxiliary execution and platform launcher scripts
-│   ├── run.sh             # Terminal runner script
-│   ├── launch-retroos.sh  # Desktop terminal launcher (Gnome, Konsole, XFCE)
-│   └── install-shortcut.sh# Linux .desktop application shortcut installer
 └── lab/
     ├── lib/               # Shared libraries and utilities
     │   ├── ui.sh          # Terminal colors, atomic lock primitives, input parsing
@@ -211,7 +195,6 @@ RetroOS_Shell/
         ├── sched.sh       # CPU scheduling algorithms and Gantt chart generation
         ├── pcb.sh         # Live /proc PCB reader and tick-by-tick state simulator
         ├── memory.sh      # Page replacement algorithms and Belady's anomaly
-        ├── race.sh        # Critical section race conditions and mutex demo
         ├── deadlock.sh    # Deadlock simulation, WFG, and Coffman conditions
         ├── bankers.sh     # Dijkstra's Banker's Algorithm (Deadlock avoidance)
         ├── sysinfo.sh     # Memory, CPU monitoring, privilege mode toggle
@@ -260,18 +243,17 @@ bash retroos.sh -c "demo"
 
 | Category | Command | Description |
 | :--- | :--- | :--- |
-| Lab Tour | `demo` | Executes an automated 8-part demonstration across all modules |
+| Lab Tour | `demo` | Executes an automated 7-part demonstration across all modules |
 | CPU Scheduling | `sched rr 2 0:5 1:3 2:8` | Round Robin scheduling with quantum = 2 |
 | | `sched compare 0:5 1:3 2:8` | Side-by-side benchmark of FCFS, SJF, Priority, and RR |
 | Process Control | `pcb self` | Live PCB analysis of the shell process from `/proc` |
 | | `pcb sim 2 0:5 1:3` | Tick-by-tick discrete simulation of process state queues |
 | | `forkdemo` | Demonstration of `fork()`, `exec()`, `wait()`, zombies, and signals |
+| Deadlock Management | `deadlock` | Circular wait simulation, lock ordering, and back-off fixes |
+| | `bankers` | Interactive Banker's algorithm and safe sequence finder |
 | Memory Management | `memory lru 3 7 0 1 2 0 3` | LRU Page replacement simulation with 3 frames |
 | | `memory belady` | Demonstrates Belady's Anomaly in FIFO (3 vs 4 frames) |
 | | `memory compare 3 ...` | Side-by-side comparison of FIFO, LRU, and OPT |
-| Concurrency | `race` | Demonstrates lost updates vs atomic mutex locking |
-| | `deadlock` | Circular wait simulation, lock ordering, and back-off fixes |
-| | `bankers` | Interactive Banker's algorithm and safe sequence finder |
 | Kernel and Telemetry | `meminfo` | Displays RAM allocation and disk caching statistics |
 | | `monitor 5` | Live CPU and Memory usage bars (5 refreshes) |
 | | `mode-switch` | Simulates privilege transition between Ring 3 and Ring 0 |
