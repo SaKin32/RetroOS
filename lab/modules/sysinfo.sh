@@ -9,16 +9,35 @@
 
 KERNEL_MODE=0
 
-# _bar PERCENT -> a 20 character bar with gradient colors
+# _bar PERCENT -> a sleek 20-character telemetry progress bar with dynamic soft gradient
 _bar() {
-    local pct=$1 i out="" full=$(( $1 * 20 / 100 ))
-    local col=$GRN
-    (( pct > 50 )) && col=$YEL
-    (( pct > 80 )) && col=$RED
+    local pct=${1:-0} i out="" full=$(( pct * 20 / 100 ))
+    (( full > 20 )) && full=20
+    (( full < 0 )) && full=0
+    local c_mint=$'\033[38;2;166;227;161m' # soft pastel green (#a6e3a1)
+    local c_gold=$'\033[38;2;249;226;175m' # warm pastel gold  (#f9e2af)
+    local c_oran=$'\033[38;2;250;179;135m' # soft pastel peach (#fab387)
+    local c_red=$'\033[38;2;243;139;168m'  # soft pastel coral (#f38ba8)
+    local c_dim=$'\033[38;2;88;91;112m'    # subtle muted slate track (#585b70)
+    local c_bkt=$'\033[38;2;147;153;178m'  # subtle slate brackets (#9399b2)
+    local col
     for (( i = 0; i < 20; i++ )); do
-        if (( i < full )); then out+="${col}#${RST}"; else out+="${DIM}-${RST}"; fi
+        if (( i < full )); then
+            if (( i < 11 )); then
+                col="$c_mint"
+            elif (( i < 15 )); then
+                col="$c_gold"
+            elif (( i < 18 )); then
+                col="$c_oran"
+            else
+                col="$c_red"
+            fi
+            out+="${col}█"
+        else
+            out+="${c_dim}░"
+        fi
     done
-    echo "[$out]"
+    printf "%s[%s%s]%s" "$c_bkt" "$out" "$c_bkt" "$RST"
 }
 
 # _mem_kb KEY -> value in kB from /proc/meminfo
@@ -30,15 +49,19 @@ cmd_meminfo() {
     swt=$(_mem_kb SwapTotal);  swf=$(_mem_kb SwapFree)
     used=$(( total - avail )); pct=$(( used * 100 / total ))
     title "VIRTUAL MEMORY TELEMETRY (/proc/meminfo)"
-    echo "  ┌────────────────────────────────┬──────────────────────────────┐"
-    printf "  │ ${CYN}%-30s${RST} │ ${WHT}%10s MB${RST}                 │\n" "Total Physical RAM" "$(( total / 1024 ))"
-    printf "  │ ${CYN}%-30s${RST} │ ${GRN}%10s MB${RST}                 │\n" "Currently Used" "$(( used / 1024 ))"
-    printf "  │ ${CYN}%-30s${RST} │ ${CYN}%10s MB${RST}                 │\n" "Available for Allocation" "$(( avail / 1024 ))"
-    printf "  │ ${CYN}%-30s${RST} │ ${DIM}%10s MB${RST}                 │\n" "Completely Free" "$(( free / 1024 ))"
-    printf "  │ ${CYN}%-30s${RST} │ ${PUR}%10s MB${RST} of %s MB       │\n" "Swap Space" "$(( (swt - swf) / 1024 ))" "$(( swt / 1024 ))"
-    echo "  └────────────────────────────────┴──────────────────────────────┘"
+    local swap_str="$(( (swt - swf) / 1024 )) MB of $(( swt / 1024 )) MB"
+    echo "  ┌───────────────────────────────┬─────────────────────────────┐"
+    printf "  │ ${CYN}%-29s${RST} │ ${WHT}%27s${RST} │\n" "Total Physical RAM" "$(( total / 1024 )) MB"
+    printf "  │ ${CYN}%-29s${RST} │ ${GRN}%27s${RST} │\n" "Currently Used" "$(( used / 1024 )) MB"
+    printf "  │ ${CYN}%-29s${RST} │ ${CYN}%27s${RST} │\n" "Available for Allocation" "$(( avail / 1024 )) MB"
+    printf "  │ ${CYN}%-29s${RST} │ ${DIM}%27s${RST} │\n" "Completely Free" "$(( free / 1024 )) MB"
+    printf "  │ ${CYN}%-29s${RST} │ ${PUR}%27s${RST} │\n" "Swap Space" "$swap_str"
+    echo "  └───────────────────────────────┴─────────────────────────────┘"
     echo
-    echo "  RAM Utilization: $(_bar $pct) ${BLD}${pct}%${RST}"
+    local pct_col=$'\033[38;2;166;227;161m'
+    (( pct >= 60 )) && pct_col=$'\033[38;2;249;226;175m'
+    (( pct >= 85 )) && pct_col=$'\033[38;2;243;139;168m'
+    echo "  ${CYN}${BLD}RAM Utilization:${RST} $(_bar $pct)  ${pct_col}${BLD}${pct}%${RST}"
     note "Available memory includes page buffers reclaimed by kernel on-demand."
 }
 
@@ -51,17 +74,19 @@ cmd_kinfo() {
     btime=$(awk '$1 == "btime" {print $2}' /proc/stat)
     cpus=$(nproc 2> /dev/null || grep -c ^processor /proc/cpuinfo)
     load=$(cut -d' ' -f1-3 /proc/loadavg)
+    local rel="$(uname -s) $(uname -r)"
+    (( ${#rel} > 27 )) && rel="${rel:0:24}..."
     title "KERNEL ARCHITECTURE & TELEMETRY (/proc)"
-    echo "  ┌────────────────────────────────┬──────────────────────────────┐"
-    printf "  │ ${CYN}%-30s${RST} │ ${WHT}%-28s${RST} │\n" "Kernel Release" "$(uname -s) $(uname -r)"
-    printf "  │ ${CYN}%-30s${RST} │ ${WHT}%-28s${RST} │\n" "Host Architecture" "$(uname -m)"
-    printf "  │ ${CYN}%-30s${RST} │ ${WHT}%-28s${RST} │\n" "System Uptime" "${days}d ${hrs}h ${mins}m"
-    printf "  │ ${CYN}%-30s${RST} │ ${WHT}%-28s${RST} │\n" "CPU Cores Online" "$cpus cores"
-    printf "  │ ${CYN}%-30s${RST} │ ${WHT}%-28s${RST} │\n" "Load Average (1m, 5m, 15m)" "$load"
-    printf "  │ ${CYN}%-30s${RST} │ ${WHT}%-28s${RST} │\n" "Active Task Descriptors" "$procs processes"
-    printf "  │ ${CYN}%-30s${RST} │ ${WHT}%-28s${RST} │\n" "Total Context Switches" "$ctxt"
-    printf "  │ ${CYN}%-30s${RST} │ ${PUR}${BLD}%-28s${RST} │\n" "Simulated CPU Ring" "$( (( KERNEL_MODE )) && echo 'Ring 0 (Kernel Supervisor)' || echo 'Ring 3 (User Unprivileged)')"
-    echo "  └────────────────────────────────┴──────────────────────────────┘"
+    echo "  ┌───────────────────────────────┬─────────────────────────────┐"
+    printf "  │ ${CYN}%-29s${RST} │ ${WHT}%-27s${RST} │\n" "Kernel Release" "$rel"
+    printf "  │ ${CYN}%-29s${RST} │ ${WHT}%-27s${RST} │\n" "Host Architecture" "$(uname -m)"
+    printf "  │ ${CYN}%-29s${RST} │ ${WHT}%-27s${RST} │\n" "System Uptime" "${days}d ${hrs}h ${mins}m"
+    printf "  │ ${CYN}%-29s${RST} │ ${WHT}%-27s${RST} │\n" "CPU Cores Online" "$cpus cores"
+    printf "  │ ${CYN}%-29s${RST} │ ${WHT}%-27s${RST} │\n" "Load Average (1m, 5m, 15m)" "$load"
+    printf "  │ ${CYN}%-29s${RST} │ ${WHT}%-27s${RST} │\n" "Active Task Descriptors" "$procs processes"
+    printf "  │ ${CYN}%-29s${RST} │ ${WHT}%-27s${RST} │\n" "Total Context Switches" "$ctxt"
+    printf "  │ ${CYN}%-29s${RST} │ ${PUR}${BLD}%-27s${RST} │\n" "Simulated CPU Ring" "$( (( KERNEL_MODE )) && echo 'Ring 0 (Supervisor)' || echo 'Ring 3 (User)')"
+    echo "  └───────────────────────────────┴─────────────────────────────┘"
     echo
     echo "  ${CYN}${BLD}Kernel Privilege Trapping Hierarchy:${RST}"
     echo "    ${CYN}User Space (Ring 3)${RST}  ──> Command execution: fork() -> exec()"

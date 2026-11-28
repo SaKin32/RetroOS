@@ -15,7 +15,7 @@ _demo_run() {
 }
 
 cmd_demo() {
-    title "RETROOS DEMO  (part 1/8)  Shell basics"
+    title "RETROOS DEMO  (part 1/7)  Shell basics"
     _demo_run "ls | grep sh > /tmp/retroos_demo.txt; cat /tmp/retroos_demo.txt"
     _demo_run "echo hello && echo second || echo never"
     _demo_run "sleep 3 &"
@@ -25,16 +25,16 @@ cmd_demo() {
     rm -f /tmp/retroos_demo.txt
     _demo_pause
 
-    title "RETROOS DEMO  (part 2/8)  fork / exec / wait / pipe / zombie"
+    title "RETROOS DEMO  (part 2/7)  fork / exec / wait / pipe / zombie"
     cmd_forkdemo
     _demo_pause
 
-    title "RETROOS DEMO  (part 3/8)  CPU scheduling"
+    title "RETROOS DEMO  (part 3/7)  CPU scheduling"
     _demo_run "sched rr 2 0:5 1:3 2:8"
     _demo_run "sched compare 0:5:2 1:3:3 2:8:1 3:2:4"
     _demo_pause
 
-    title "RETROOS DEMO  (part 4/8)  Process Control Block"
+    title "RETROOS DEMO  (part 4/7)  Process Control Block"
     _demo_run "pcb sim 2 0:3 1:2 2:4"
     _demo_pause
 
