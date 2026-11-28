@@ -153,13 +153,19 @@ show_banner() {
     local r_kernel="$kernel"
     if [[ "$r_kernel" =~ microsoft ]]; then
         r_kernel="Linux $(uname -r | cut -d'-' -f1) (WSL2)"
-    elif (( ${#r_kernel} > 26 )); then
-        r_kernel="${r_kernel:0:23}..."
+    elif (( ${#r_kernel} > 32 )); then
+        r_kernel="${r_kernel:0:29}..."
     fi
 
     local r_cpu="$cpu"
-    if (( ${#r_cpu} > 26 )); then
-        r_cpu="${r_cpu:0:23}..."
+    r_cpu="${r_cpu//(R)/}"
+    r_cpu="${r_cpu//(TM)/}"
+    r_cpu="${r_cpu//CPU /}"
+    r_cpu="${r_cpu//@*/}"
+    r_cpu=$(echo "$r_cpu" | sed -e 's/[[:space:]]\+/ /g' -e 's/^[[:space:]]*//;s/[[:space:]]*$//')
+    [[ -z "$r_cpu" ]] && r_cpu="${cores} Cores Online"
+    if (( ${#r_cpu} > 36 )); then
+        r_cpu="${r_cpu:0:33}..."
     fi
 
     local R=$'\033[0m' B=$'\033[1m'
