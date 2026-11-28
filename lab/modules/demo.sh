@@ -38,22 +38,18 @@ cmd_demo() {
     _demo_run "pcb sim 2 0:3 1:2 2:4"
     _demo_pause
 
-    title "RETROOS DEMO  (part 5/8)  Memory: page replacement"
+    title "RETROOS DEMO  (part 5/7)  Memory: page replacement"
     _demo_run "memory compare 3 7 0 1 2 0 3 0 4 2 3 0 3 2"
     _demo_run "memory belady"
     _demo_run "meminfo"
     _demo_pause
 
-    title "RETROOS DEMO  (part 6/8)  Race condition"
-    demo_race <<< $'3\n40'
-    _demo_pause
-
-    title "RETROOS DEMO  (part 7/8)  Deadlock and Banker's algorithm"
+    title "RETROOS DEMO  (part 6/7)  Deadlock and Banker's algorithm"
     printf '1\n4\n0\n' | demo_deadlock
     printf '1\n5\n0\n' | demo_bankers
     _demo_pause
 
-    title "RETROOS DEMO  (part 8/8)  Kernel"
+    title "RETROOS DEMO  (part 7/7)  Kernel"
     _demo_run "kinfo"
     _demo_run "mode-switch"
     _demo_run "mode-switch"

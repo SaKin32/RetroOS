@@ -19,7 +19,7 @@ LAB="$DIR/lab"
 source "$LAB/lib/ui.sh"          # colours, title/note, ask_int, locks
 source "$LAB/lib/theme.sh"       # themes, prompt, banner
 source "$LAB/lib/banner.sh"      # purple cat welcome screen
-for _m in sched race deadlock bankers pcb memory sysinfo forkdemo demo; do
+for _m in sched deadlock bankers pcb memory sysinfo forkdemo demo; do
     source "$LAB/modules/$_m.sh"
 done
 unset _m
@@ -87,28 +87,27 @@ help() {
         "21. pcb <pid>^Inspect live process control block of any target PID"
         "22. pcb sim 2 0:5 1:3^Tick-by-tick animated process state machine simulation"
         "23. forkdemo^Live telemetry of fork, exec, wait, pipe & zombie (Z)"
-        "TOPIC 4 : CONCURRENCY, MUTEX & DEADLOCK MANAGEMENT"
-        "24. race^Simulate race condition with & without atomic mutex"
-        "25. deadlock^Coffman conditions, wait-for cycle & lock ordering"
-        "26. bankers^Dijkstra's Banker's algorithm safe sequence & requests"
+        "TOPIC 4 : DEADLOCK DETECTION & AVOIDANCE"
+        "24. deadlock^Coffman conditions, wait-for cycle & lock ordering"
+        "25. bankers^Dijkstra's Banker's algorithm safe sequence & requests"
         "TOPIC 5 : VIRTUAL MEMORY & PAGE REPLACEMENT"
-        "27. memory fifo 3 7 0 1 2 0 3^First-In, First-Out page replacement simulation"
-        "28. memory lru 3 7 0 1 2 0 3^Least Recently Used page replacement simulation"
-        "29. memory opt 3 7 0 1 2 0 3^Optimal clairvoyant page replacement simulation"
-        "30. memory compare 3 7 0 1 2^Benchmark FIFO vs LRU vs OPT hit and fault ratios"
-        "31. memory belady^Empirical proof of Belady's Anomaly in FIFO paging"
+        "26. memory fifo 3 7 0 1 2 0 3^First-In, First-Out page replacement simulation"
+        "27. memory lru 3 7 0 1 2 0 3^Least Recently Used page replacement simulation"
+        "28. memory opt 3 7 0 1 2 0 3^Optimal clairvoyant page replacement simulation"
+        "29. memory compare 3 7 0 1 2^Benchmark FIFO vs LRU vs OPT hit and fault ratios"
+        "30. memory belady^Empirical proof of Belady's Anomaly in FIFO paging"
         "TOPIC 6 : KERNEL INTERNALS & SYSTEM TELEMETRY"
-        "32. kinfo^Kernel version, CPU cores, uptime & privilege mode"
-        "33. meminfo^Physical RAM usage, buffers & swap memory from /proc"
-        "34. monitor 10^Live dynamic in-place CPU and RAM telemetry dashboard"
-        "35. mode-switch^Simulate Ring 3 (User) <-> Ring 0 (Kernel) privilege trap"
-        "36. trace ls^Trace program system calls in real-time (strace)"
+        "31. kinfo^Kernel version, CPU cores, uptime & privilege mode"
+        "32. meminfo^Physical RAM usage, buffers & swap memory from /proc"
+        "33. monitor 10^Live dynamic in-place CPU and RAM telemetry dashboard"
+        "34. mode-switch^Simulate Ring 3 (User) <-> Ring 0 (Kernel) privilege trap"
+        "35. trace ls^Trace program system calls in real-time (strace)"
         "TOPIC 7 : AUTOMATED LABORATORY DEMONSTRATION"
-        "37. demo^Comprehensive end-to-end automated lab demonstration"
+        "36. demo^Comprehensive end-to-end automated lab demonstration"
     )
     echo
     echo "${PUR}${BLD}  ┌──────────────────────────────────────────────────────────────────────────────────┐${RST}"
-    echo "${CYN}${BLD}  │            RetroOS Shell - Operating Systems Lab Syllabus Command Index          │${RST}"
+    echo "${CYN}${BLD}  │            RetroOS Shell - Operating Systems Command Index                       │${RST}"
     echo "${PUR}${BLD}  └──────────────────────────────────────────────────────────────────────────────────┘${RST}"
     local r
     for r in "${rows[@]}"; do
