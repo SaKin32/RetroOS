@@ -60,6 +60,110 @@ user() {
 }
 
 help() {
+    if [[ -n ${1:-} ]]; then
+        case $1 in
+            sched)
+                title "MANUAL: CPU SCHEDULING & GANTT CHARTS (sched)"
+                echo "  ${CYN}${BLD}SYNOPSIS:${RST} sched <fcfs|sjf|prio|rr|compare> [args...]"
+                echo
+                echo "  ${CYN}${BLD}DESCRIPTION:${RST}"
+                echo "    Simulates preemptive and non-preemptive CPU dispatching algorithms."
+                echo "    Renders an animated graphical Gantt chart and process metrics table."
+                echo
+                echo "  ${CYN}${BLD}METRICS & FORMULAS:${RST}"
+                echo "    • Turnaround Time (TAT) = Completion Time (CT) - Arrival Time (AT)"
+                echo "    • Waiting Time (WT)    = Turnaround Time (TAT) - Burst Time (BT)"
+                echo
+                echo "  ${CYN}${BLD}ALGORITHMS:${RST}"
+                echo "    • fcfs               First-Come First-Served (non-preemptive, FIFO order)"
+                echo "    • sjf                Shortest Job First (non-preemptive, minimizes WT)"
+                echo "    • prio               Priority Scheduling (smaller integer = higher priority)"
+                echo "    • rr <q>             Round Robin (preemptive, time quantum slice q)"
+                echo "    • compare            Comparative benchmark across all 4 algorithms"
+                echo
+                echo "  ${CYN}${BLD}TEXTBOOK REFERENCE:${RST} Silberschatz et al. Ch 5 (CPU Scheduling)"
+                echo "  ${CYN}${BLD}EXAMPLES:${RST}"
+                echo "    sched rr 2 0:5 1:3 2:8"
+                echo "    sched compare 0:5:2 1:3:3 2:8:1 3:2:4"
+                echo
+                return 0 ;;
+            bankers)
+                title "MANUAL: DIJKSTRA'S BANKER'S ALGORITHM (bankers)"
+                echo "  ${CYN}${BLD}SYNOPSIS:${RST} bankers"
+                echo
+                echo "  ${CYN}${BLD}DESCRIPTION:${RST}"
+                echo "    Proactive deadlock avoidance algorithm for multi-resource allocation."
+                echo "    Maintains Allocation, Max, Available and Need matrices."
+                echo "    Derives Need[i][j] = Max[i][j] - Allocation[i][j]."
+                echo
+                echo "  ${CYN}${BLD}SAFETY ALGORITHM:${RST}"
+                echo "    Finds safe execution sequence where Finish[i] == false and Need[i] <= Work."
+                echo "    If all processes complete, system state is SAFE; otherwise UNSAFE."
+                echo
+                echo "  ${CYN}${BLD}TEXTBOOK REFERENCE:${RST} Silberschatz et al. Ch 8.6.3 (Banker's Algorithm)"
+                echo "  ${CYN}${BLD}EXAMPLES:${RST} bankers  (interactive menu with custom matrices)"
+                echo
+                return 0 ;;
+            deadlock)
+                title "MANUAL: DEADLOCK DETECTION & MITIGATION (deadlock)"
+                echo "  ${CYN}${BLD}SYNOPSIS:${RST} deadlock"
+                echo
+                echo "  ${CYN}${BLD}DESCRIPTION:${RST}"
+                echo "    Simulates concurrency deadlock and validates Coffman's 4 conditions:"
+                echo "    Mutual Exclusion, Hold & Wait, No Preemption, Circular Wait."
+                echo
+                echo "  ${CYN}${BLD}PREVENTION STRATEGIES:${RST}"
+                echo "    • Global Lock Ordering: Enforces lock hierarchy (breaks Circular Wait)"
+                echo "    • Trylock & Back-off: Releases primary lock on contention (breaks Hold & Wait)"
+                echo
+                echo "  ${CYN}${BLD}TEXTBOOK REFERENCE:${RST} Silberschatz et al. Ch 8 (Deadlocks)"
+                echo
+                return 0 ;;
+            memory)
+                title "MANUAL: DEMAND PAGING & PAGE REPLACEMENT (memory)"
+                echo "  ${CYN}${BLD}SYNOPSIS:${RST} memory <fifo|lru|opt|compare|belady> [frames] [pages...]"
+                echo
+                echo "  ${CYN}${BLD}POLICIES:${RST}"
+                echo "    • fifo               First-In, First-Out page replacement"
+                echo "    • lru                Least Recently Used (stack algorithm)"
+                echo "    • opt                Optimal / Clairvoyant (theoretical upper bound)"
+                echo "    • belady             Empirical proof of Belady's Anomaly (FIFO 3 vs 4 frames)"
+                echo "    • compare            Comparative hit/fault benchmark across all three policies"
+                echo
+                echo "  ${CYN}${BLD}TEXTBOOK REFERENCE:${RST} Silberschatz et al. Ch 9.4 (Page Replacement)"
+                echo "  ${CYN}${BLD}EXAMPLES:${RST}"
+                echo "    memory lru 3 7 0 1 2 0 3 0 4 2 3"
+                echo "    memory belady"
+                echo
+                return 0 ;;
+            pcb)
+                title "MANUAL: PROCESS CONTROL BLOCK & STATE MACHINE (pcb)"
+                echo "  ${CYN}${BLD}SYNOPSIS:${RST} pcb [self | <pid> | sim <quantum> <arrival:burst...>]"
+                echo
+                echo "  ${CYN}${BLD}CAPABILITIES:${RST}"
+                echo "    • pcb self           Inspects live Linux task_struct of the RetroOS shell"
+                echo "    • pcb <pid>          Extracts VmSize, VmRSS, State, and Context Switches"
+                echo "    • pcb sim            Tick-by-tick discrete queue lifecycle simulation"
+                echo
+                echo "  ${CYN}${BLD}TEXTBOOK REFERENCE:${RST} Silberschatz et al. Ch 3.1 (Process State & PCB)"
+                echo
+                return 0 ;;
+            forkdemo)
+                title "MANUAL: POSIX PROCESS LIFECYCLE (forkdemo)"
+                echo "  ${CYN}${BLD}SYNOPSIS:${RST} forkdemo"
+                echo
+                echo "  ${CYN}${BLD}DESCRIPTION:${RST}"
+                echo "    7-step live demonstration of POSIX process subsystem primitives:"
+                echo "    1) PID/PPID  2) fork()  3) exec()  4) wait()  5) pipe()  6) zombie (Z)  7) signals"
+                echo
+                echo "  ${CYN}${BLD}TEXTBOOK REFERENCE:${RST} Silberschatz et al. Ch 3.3 (Process Operations)"
+                echo
+                return 0 ;;
+            *)
+                echo "  ${YEL}No dedicated manual page for '$1'. Showing full command index:${RST}" ;;
+        esac
+    fi
+
     local -a rows=(
         "TOPIC 1 : CORE SHELL UTILITIES & POSIX ENVIRONMENT"
         "01. cd <directory>^Change the current working directory"
@@ -74,7 +178,7 @@ help() {
         "10. cls^Clear screen and terminal scrollback buffer"
         "11. theme <name>^Switch theme: cyber | retro | matrix | dracula"
         "12. user <name>^Set custom terminal user identifier"
-        "13. help^Display this complete command reference manual"
+        "13. help [cmd]^Display complete reference manual or topic documentation"
         "14. exit^Terminate current RetroOS shell session"
         "TOPIC 2 : CPU SCHEDULING ALGORITHMS & GANTT CHARTS"
         "15. sched fcfs 0:5 1:3 2:8^First-Come, First-Served non-preemptive scheduling"
@@ -120,6 +224,8 @@ help() {
             printf "   ${GRN}${BLD}%-37s${RST} ${WHT}%s${RST}\n" "$cmd" "$desc"
         fi
     done
+    echo
+    note "Type 'help <command>' (e.g. 'help sched' or 'help bankers') for in-depth textbook manuals."
     echo
 }
 

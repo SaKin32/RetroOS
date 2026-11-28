@@ -1,0 +1,26 @@
+name: RetroOS CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Regression Test Suite & Static Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v4
+
+      - name: Verify Environment & Tools
+        run: |
+          echo "Kernel: $(uname -s) $(uname -r)"
+          echo "Bash Version: $(bash --version | head -1)"
+
+      - name: Run Automated Test Suite
+        run: |
+          chmod +x test/test_all.sh retroos.sh
+          bash test/test_all.sh

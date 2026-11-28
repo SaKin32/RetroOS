@@ -2,9 +2,10 @@
 
 # RetroOS Shell (CSE210 Operating Systems Lab Edition)
 
-![Language](https://img.shields.io/badge/Language-Bash-blue?style=for-the-badge)
+[![CI](https://github.com/SaKin32/RetroOS/actions/workflows/ci.yml/badge.svg)](https://github.com/SaKin32/RetroOS/actions/workflows/ci.yml)
+![Language](https://img.shields.io/badge/Language-Bash_4.0+-blue?style=for-the-badge&logo=gnubash&logoColor=white)
 ![Kernel](https://img.shields.io/badge/Kernel-Linux_VFS-FCC624?style=for-the-badge&logo=linux&logoColor=black)
-![Platform](https://img.shields.io/badge/Platform-WSL-0078D6?style=for-the-badge)
+![Platform](https://img.shields.io/badge/Platform-WSL%20%7C%20Linux%20%7C%20Docker-0078D6?style=for-the-badge&logo=docker&logoColor=white)
 ![Course](https://img.shields.io/badge/Course-CSE210-purple?style=for-the-badge)
 ![License](https://img.shields.io/badge/Academic%20Project-Personal%20Use-ec4899?style=for-the-badge)
 
@@ -65,30 +66,82 @@ The objective of this project is to provide a rigorous, interactive bridge betwe
 
 ---
 
-## System Architecture
+## System Architecture & Execution Flow
 
+### 1. Master Shell Architecture & REPL Loop
+
+```mermaid
+flowchart TD
+    Start([Shell Launched: retroos.sh]) --> Init[Load Core Libraries: ui.sh, theme.sh, banner.sh]
+    Init --> Modules[Source Lab Modules: sched, pcb, memory, deadlock, bankers, sysinfo]
+    Modules --> Banner[Display Fastfetch Telemetry & ASCII Art Banner]
+    
+    subgraph REPL ["The Master REPL Loop"]
+        Prompt["1. Render Dynamic Prompt: user@retros (theme) >"]
+        Read["2. Readline Input with Session History Buffer"]
+        Parse{"3. Tokenize & Dispatch Input"}
+        
+        Prompt --> Read --> Parse
+        
+        Parse -- "Internal Function (sched, bankers, meminfo, etc.)" --> ExecFunc[Execute In-Memory Function in Current Shell Context]
+        Parse -- "Standard Unix Tool (ls, grep, cat, vim)" --> ForkExec["POSIX fork() & exec() Child Subshell"]
+        Parse -- "Pipeline / Redirection (| , > , &)" --> PipeCtrl["Setup anonymous pipe() & background job control"]
+        
+        ExecFunc --> UpdateLast["Update Exit Code & History Buffer"]
+        ForkExec --> UpdateLast
+        PipeCtrl --> UpdateLast
+        UpdateLast --> Prompt
+    end
 ```
-+-------------------------------------------------------------------------+
-|                              RetroOS Shell                              |
-|   (Interactive REPL, History, Aliases, Job Control, Pipes, Redirects)   |
-+-----------------------------------+-------------------------------------+
-                                    |
-            +-----------------------+-----------------------+
-            |                                               |
-            v                                               v
-+-----------------------+                       +-----------------------+
-|    OS Lab Modules     |                       |    Core Libraries     |
-| (lab/modules/*.sh)    |                       | (lab/lib/*.sh)        |
-+-----------------------+                       +-----------------------+
-| * sched.sh   (CPU)    |                       | * ui.sh    (Colors,   |
-| * pcb.sh     (States) |                       |             Locks)    |
-| * memory.sh  (Paging) |                       | * theme.sh (Themes &  |
-| * deadlock.sh(Coffman)|                       |             Prompt)   |
-| * bankers.sh (Safety) |                       | * banner.sh(Sysinfo   |
-| * sysinfo.sh (Kernel) |                       |             Banner)   |
-| * forkdemo.sh(Fork)   |                       +-----------------------+
-+-----------------------+
+
+### 2. Core OS Simulation Algorithm Loops
+
+```mermaid
+flowchart LR
+    subgraph SchedLoop ["CPU Scheduling Engine (sched.sh)"]
+        direction TB
+        S1[Ready Queue: arrival:burst:priority] --> S2{Preemptive or Non-preemptive?}
+        S2 -- Round Robin --> S3["Time Quantum Slice (q)"]
+        S2 -- FCFS/SJF/Prio --> S4["Priority / Burst Sort"]
+        S3 & S4 --> S5["Dispatch to Live Animated Gantt Pill Stream"]
+        S5 --> S6["Compute Metrics: TAT = CT - AT, WT = TAT - BT"]
+    end
+
+    subgraph BankerLoop ["Banker's Safety Engine (bankers.sh)"]
+        direction TB
+        B1["Initialize: Work = Available, Finish = False"] --> B2{"Find Process Pi where Finish[i]==0 and Need[i] <= Work"}
+        B2 -- Found Pi --> B3["Work = Work + Allocation[Pi], Finish[Pi]=1"]
+        B3 --> B2
+        B2 -- None Found --> B4{"All Finish == 1?"}
+        B4 -- Yes --> B5["SAFE State: Generate Safe Sequence"]
+        B4 -- No --> B6["UNSAFE State: Deadlock Imminent, Deny Request"]
+    end
+
+    subgraph MemoryLoop ["Demand Paging Engine (memory.sh)"]
+        direction TB
+        M1[Next Page Reference] --> M2{"Page in RAM Frames?"}
+        M2 -- Yes --> M3["Page HIT: Update LRU timestamp"]
+        M2 -- No --> M4["Page FAULT: Increment Fault Counter"]
+        M4 --> M5{"Any Free Frame Available?"}
+        M5 -- Yes --> M6["Allocate to Empty Frame"]
+        M5 -- No --> M7["Victim Selection: FIFO / LRU / Optimal"]
+        M7 --> M8["Evict Victim & Load Requested Page"]
+    end
 ```
+
+---
+
+## Academic Textbook Alignment
+
+RetroOS is structurally mapped to the definitive undergraduate textbook **"Operating System Concepts" (Silberschatz, Galvin & Gagne)**:
+
+| Textbook Chapter | Operating System Theory | RetroOS Implementation | Key Command |
+| :--- | :--- | :--- | :--- |
+| **Chapter 3: Processes** | Process Creation, PCB Structure, `task_struct`, State Transitions | `lab/modules/pcb.sh`, `forkdemo.sh` | `pcb sim`, `pcb self`, `forkdemo` |
+| **Chapter 5: CPU Scheduling** | Preemptive vs Non-preemptive, Gantt Chart, FCFS, SJF, RR, Priority | `lab/modules/sched.sh` | `sched rr 2 ...`, `sched compare` |
+| **Chapter 8: Deadlocks** | 4 Coffman Conditions, Wait-For Graph Cycles, Banker's Avoidance | `lab/modules/deadlock.sh`, `bankers.sh` | `deadlock`, `bankers` |
+| **Chapter 9: Virtual Memory** | Demand Paging, Page Faults, FIFO, LRU, Optimal, Belady's Anomaly | `lab/modules/memory.sh` | `memory compare`, `memory belady` |
+| **Chapter 1: OS Structures** | Dual-mode Operation (User Ring 3 vs Kernel Ring 0), Syscalls, `/proc` | `lab/modules/sysinfo.sh` | `kinfo`, `meminfo`, `mode-switch` |
 
 ---
 
@@ -183,9 +236,14 @@ RetroOS functions as a full POSIX-compatible command shell:
 
 ```
 RetroOS_Shell/
+├── .github/
+│   └── workflows/ci.yml   # GitHub Actions continuous integration workflow
+├── Dockerfile             # Containerized reproducible execution environment
 ├── retroos.sh             # Main shell entry point and interactive REPL loop
 ├── run.bat                # Windows 1-click launcher (Git Bash auto-detect)
 ├── README.md              # Project documentation and academic lab manual
+├── test/
+│   └── test_all.sh        # Automated CI/CD regression verification test suite
 └── lab/
     ├── lib/               # Shared libraries and utilities
     │   ├── ui.sh          # Terminal colors, atomic lock primitives, input parsing
@@ -206,7 +264,7 @@ RetroOS_Shell/
 
 ## Getting Started and Installation
 
-### Running on Linux or WSL (Recommended)
+### Option 1: Running on Linux or WSL (Recommended)
 
 **First-Time Setup:**
 ```bash
@@ -218,10 +276,10 @@ cd RetroOS
 bash retroos.sh
 ```
 
-**Subsequent Direct Launch (Anytime you reopen your terminal):**
+**Automated CI/CD Test Suite:**
 ```bash
-# Single command direct launch from anywhere:
-cd ~/RetroOS && bash retroos.sh
+# Execute the full automated regression test suite
+bash test/test_all.sh
 ```
 
 **Automated Demonstration Tour:**
@@ -230,12 +288,19 @@ cd ~/RetroOS && bash retroos.sh
 bash retroos.sh -c "demo"
 ```
 
-### Running on Windows (Git Bash)
-- Option A (Direct): Double-click `run.bat` in the root directory. It automatically locates Git Bash and initializes the shell.
-- Option B (Terminal): Open Git Bash inside the project directory and execute:
-  ```bash
-  bash retroos.sh
-  ```
+### Option 2: Running with Docker (Zero Dependencies)
+
+```bash
+# Build the lightweight Docker image
+docker build -t retroos .
+
+# Run RetroOS interactively
+docker run -it --rm retroos
+```
+
+### Option 3: Running on Windows (Git Bash)
+- Direct: Double-click `run.bat` in the root directory. It automatically locates Git Bash and initializes the shell.
+- Terminal: Open Git Bash inside the project directory and execute `bash retroos.sh`.
 
 ---
 
