@@ -111,15 +111,15 @@ _pcb_sim() {
 
     echo
     echo "  ${CYN}${BLD}Final Process Control Block (PCB) Summary Table:${RST}"
-    echo "  ┌───────┬────────────┬─────────┬───────┬───────────┬────────────┬─────────┐"
-    printf "  │ ${BLD}%-5s${RST} │ ${BLD}%-10s${RST} │ ${BLD}%-7s${RST} │ ${BLD}%-5s${RST} │ ${BLD}%-9s${RST} │ ${BLD}%-10s${RST} │ ${BLD}%-7s${RST} │\n" \
-        "PID" "State" "Arrival" "Burst" "Remaining" "Completion" "Waiting"
-    echo "  ├───────┼────────────┼─────────┼───────┼───────────┼────────────┼─────────┤"
+    echo "  ┌─────┬────────────┬─────┬─────┬─────┬─────┬─────┐"
+    printf "  │ ${BLD}%-3s${RST} │ ${BLD}%-10s${RST} │ ${BLD}%-3s${RST} │ ${BLD}%-3s${RST} │ ${BLD}%-3s${RST} │ ${BLD}%-3s${RST} │ ${BLD}%-3s${RST} │\n" \
+        "PID" "State" "Arr" "Brs" "Rem" "Cmp" "WT"
+    echo "  ├─────┼────────────┼─────┼─────┼─────┼─────┼─────┤"
     for (( i = 0; i < n; i++ )); do
-        printf "  │ %-5s │ ${GRN}%-10s${RST} │ %7s │ %5s │ %9s │ %10s │ %7s │\n" \
+        printf "  │ %-3s │ ${GRN}%-10s${RST} │ %3s │ %3s │ %3s │ %3s │ %3s │\n" \
             "P$(( i + 1 ))" "${st[i]}" "${at[i]}" "${bt[i]}" "${rem[i]}" "${ct[i]}" "${wait[i]}"
     done
-    echo "  └───────┴────────────┴─────────┴───────┴───────────┴────────────┴─────────┘"
+    echo "  └─────┴────────────┴─────┴─────┴─────┴─────┴─────┘"
     echo
     note "Waiting = number of ticks a process spent in the Ready state."
     note "A real OS keeps one PCB like this row for every process."

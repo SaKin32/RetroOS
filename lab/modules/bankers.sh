@@ -41,13 +41,13 @@ _print_state() {
     local i
     echo
     echo "  ${CYN}${BLD}Banker's Algorithm State Matrix Table:${RST}"
-    echo "  ┌───────┬──────────────────┬──────────────────┬──────────────────┐"
-    printf "  │ ${BLD}%-5s${RST} │ ${BLD}%-16s${RST} │ ${BLD}%-16s${RST} │ ${BLD}%-16s${RST} │\n" "Proc" "Allocation (A B C)" "Max Claim (A B C)" "Need (A B C)"
-    echo "  ├───────┼──────────────────┼──────────────────┼──────────────────┤"
+    echo "  ┌──────┬──────────────┬──────────────┬──────────────┐"
+    printf "  │ ${BLD}%-4s${RST} │ ${BLD}%-12s${RST} │ ${BLD}%-12s${RST} │ ${BLD}%-12s${RST} │\n" "Proc" "Alloc (A B C)" "Max (A B C)" "Need (A B C)"
+    echo "  ├──────┼──────────────┼──────────────┼──────────────┤"
     for (( i = 0; i < N; i++ )); do
-        printf "  │ ${CYN}%-5s${RST} │ %-16s │ %-16s │ %-16s │\n" "P$i" "$(_vec ALLOC $((i*M)))" "$(_vec MAXM $((i*M)))" "$(_vec NEED $((i*M)))"
+        printf "  │ ${CYN}%-4s${RST} │ %-12s │ %-12s │ %-12s │\n" "P$i" "$(_vec ALLOC $((i*M)))" "$(_vec MAXM $((i*M)))" "$(_vec NEED $((i*M)))"
     done
-    echo "  └───────┴──────────────────┴──────────────────┴──────────────────┘"
+    echo "  └──────┴──────────────┴──────────────┴──────────────┘"
     echo "  ${GRN}${BLD}Available Vector (Unallocated Resources):${RST} ${WHT}${BLD}[$(_vec AVAIL 0)]${RST}"
 }
 
