@@ -100,13 +100,13 @@ demo_deadlock() {
     local choice
     while true; do
         echo
-        echo "  ${PUR}┌──${CYN} Select Deadlock Scenario ${PUR}────────────────────────────┐${RST}"
-        echo "  ${PUR}│${RST}  ${GRN}1)${RST} ${BLD}Simulate Deadlock${RST}   (T1: A->B, T2: B->A Circular Wait) ${PUR}│${RST}"
-        echo "  ${PUR}│${RST}  ${GRN}2)${RST} ${BLD}Fix: Lock Ordering${RST}  (Global order: A then B)           ${PUR}│${RST}"
-        echo "  ${PUR}│${RST}  ${GRN}3)${RST} ${BLD}Fix: Back-off/Retry${RST} (Release lock and retry)           ${PUR}│${RST}"
-        echo "  ${PUR}│${RST}  ${GRN}4)${RST} ${BLD}Coffman Conditions${RST}  (4 Necessary Conditions)           ${PUR}│${RST}"
-        echo "  ${PUR}│${RST}  ${RED}0)${RST} Return to Shell                                       ${PUR}│${RST}"
-        echo "  ${PUR}└──────────────────────────────────────────────────────────┘${RST}"
+        echo "  ${PUR}┌──${CYN} Deadlock Scenarios & Mitigation ${PUR}───────────┐${RST}"
+        echo "  ${PUR}│${RST}  ${GRN}1)${RST} ${BLD}Simulate Deadlock${RST}   (Circular Wait)      ${PUR}│${RST}"
+        echo "  ${PUR}│${RST}  ${GRN}2)${RST} ${BLD}Fix: Lock Ordering${RST}  (Global order A->B)  ${PUR}│${RST}"
+        echo "  ${PUR}│${RST}  ${GRN}3)${RST} ${BLD}Fix: Back-off/Retry${RST} (Trylock & Backoff)  ${PUR}│${RST}"
+        echo "  ${PUR}│${RST}  ${GRN}4)${RST} ${BLD}Coffman Conditions${RST}  (4 Necessary Rules)  ${PUR}│${RST}"
+        echo "  ${PUR}│${RST}  ${RED}0)${RST} Return to Shell                          ${PUR}│${RST}"
+        echo "  ${PUR}└──────────────────────────────────────────────┘${RST}"
         ask_int "Select Option" 0 4; choice=$REPLY
 
         case $choice in
@@ -140,7 +140,7 @@ demo_deadlock() {
                 echo "   ${GRN}✔ Break #4 (Circular Wait)${RST}   : Global Lock Ordering (Option 2)"
                 echo "   ${GRN}✔ Break #2 (Hold & Wait)  ${RST}   : Non-blocking Back-off / trylock (Option 3)"
                 echo "   ${GRN}✔ Deadlock Avoidance      ${RST}   : Dijkstra's Banker's Algorithm (Run: bankers)" ;;
-            0)  return ;;
+            0)  echo; return ;;
         esac
     done
 }

@@ -69,10 +69,10 @@ _is_safe() {
             (( FIN[i] )) && continue
             if _le NEED $(( i*M )) WORK 0; then          # Need[i] <= Work ?
                 if (( verbose )); then
-                    echo -n "   P$i: Need $(_vec NEED $((i*M))) <= Work $(_vec WORK 0)  -> can finish, returns $(_vec ALLOC $((i*M)))"
+                    echo -n "   P$i: Need $(_vec NEED $((i*M))) <= Work $(_vec WORK 0) -> finishes, returns $(_vec ALLOC $((i*M)))"
                 fi
                 for (( j = 0; j < M; j++ )); do WORK[j]=$(( WORK[j] + ALLOC[i*M+j] )); done
-                (( verbose )) && echo "  -> Work = $(_vec WORK 0)"
+                (( verbose )) && echo " -> Work = $(_vec WORK 0)"
                 FIN[i]=1; SEQ+=("$i"); found=1
                 break
             fi
@@ -182,14 +182,14 @@ demo_bankers() {
     local choice
     while true; do
         echo
-        echo "  ${PUR}┌──${CYN} Banker's Algorithm Operations ${PUR}───────────────────────┐${RST}"
-        echo "  ${PUR}│${RST}  ${GRN}1)${RST} ${BLD}Inspect State & Find Safe Sequence${RST}                  ${PUR}│${RST}"
-        echo "  ${PUR}│${RST}  ${GRN}2)${RST} ${BLD}Simulate Resource Request Vector${RST}                    ${PUR}│${RST}"
-        echo "  ${PUR}│${RST}  ${GRN}3)${RST} ${BLD}Enter Custom Matrices (Allocation / Max / Available)${RST} ${PUR}│${RST}"
-        echo "  ${PUR}│${RST}  ${GRN}4)${RST} Reset to Default Textbook Benchmark                 ${PUR}│${RST}"
-        echo "  ${PUR}│${RST}  ${GRN}5)${RST} Display Recommended Test Scenarios                  ${PUR}│${RST}"
-        echo "  ${PUR}│${RST}  ${RED}0)${RST} Return to Shell                                     ${PUR}│${RST}"
-        echo "  ${PUR}└────────────────────────────────────────────────────────┘${RST}"
+        echo "  ${PUR}┌──${CYN} Banker's Algorithm Operations ${PUR}─────────────┐${RST}"
+        echo "  ${PUR}│${RST}  ${GRN}1)${RST} ${BLD}Inspect State & Find Safe Sequence${RST}       ${PUR}│${RST}"
+        echo "  ${PUR}│${RST}  ${GRN}2)${RST} ${BLD}Simulate Resource Request Vector${RST}         ${PUR}│${RST}"
+        echo "  ${PUR}│${RST}  ${GRN}3)${RST} ${BLD}Enter Custom Matrices${RST}                    ${PUR}│${RST}"
+        echo "  ${PUR}│${RST}  ${GRN}4)${RST} Reset to Default Benchmark               ${PUR}│${RST}"
+        echo "  ${PUR}│${RST}  ${GRN}5)${RST} Display Recommended Test Scenarios       ${PUR}│${RST}"
+        echo "  ${PUR}│${RST}  ${RED}0)${RST} Return to Shell                          ${PUR}│${RST}"
+        echo "  ${PUR}└──────────────────────────────────────────────┘${RST}"
         ask_int "Select Operation" 0 5; choice=$REPLY
 
         case $choice in
@@ -203,7 +203,7 @@ demo_bankers() {
                echo "   ${YEL}2)${RST} P4 requests [3 3 0]  -> ${YEL}${BLD}WAIT${RST}    (Insufficient Available resources)"
                echo "   ${RED}3)${RST} P0 requests [0 2 0]  -> ${RED}${BLD}DENIED${RST}  (Causes deadlock; state becomes UNSAFE)"
                echo "   ${RED}4)${RST} P1 requests [5 0 0]  -> ${RED}${BLD}DENIED${RST}  (Exceeds maximum declared claim)" ;;
-            0) return ;;
+            0) echo; return ;;
         esac
     done
 }

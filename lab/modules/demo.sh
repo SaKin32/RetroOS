@@ -46,7 +46,9 @@ cmd_demo() {
 
     title "RETROOS DEMO  (part 6/7)  Deadlock and Banker's algorithm"
     printf '1\n4\n0\n' | demo_deadlock
+    echo
     printf '1\n5\n0\n' | demo_bankers
+    echo
     _demo_pause
 
     title "RETROOS DEMO  (part 7/7)  Kernel"
